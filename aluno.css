@@ -1,0 +1,138 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #101014;
+  color: white;
+}
+
+.app {
+  max-width: 430px;
+  margin: auto;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.topo p {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.topo h1 {
+  font-size: 25px;
+}
+
+.btn-sair {
+  width: auto;
+  background: #333;
+  padding: 10px 14px;
+}
+
+.card {
+  background: #1c1c24;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.destaque {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  margin-bottom: 25px;
+}
+
+.destaque p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.destaque h2 {
+  margin: 8px 0 15px;
+}
+
+button {
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  background: white;
+  color: #15803d;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.item span {
+  font-size: 28px;
+}
+
+.item h3 {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.item p {
+  margin-top: 5px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 360px;
+  background: #1c1c24;
+  border-radius: 20px;
+  padding: 25px;
+}
+
+.modal-box h2 {
+  margin-bottom: 10px;
+}
+
+.modal-box p {
+  color: #aaa;
+  margin-bottom: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  margin-bottom: 15px;
+  outline: none;
+}
+
+.modal-box button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.cancelar {
+  background: #333;
+  color: white;
+}

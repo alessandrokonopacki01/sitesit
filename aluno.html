@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Aluno</title>
+  <link rel="stylesheet" href="aluno.css">
+</head>
+<body>
+
+  <main class="app">
+
+    <header class="topo">
+      <div>
+        <p>Bem-vindo,</p>
+        <h1 id="nomeAluno">Aluno</h1>
+      </div>
+      <button onclick="sair()" class="btn-sair">Sair</button>
+    </header>
+
+    <section class="card destaque">
+      <p>Seu personal</p>
+      <h2 id="nomePersonal">Ainda não vinculado</h2>
+      <button onclick="abrirModal()">Conectar Personal</button>
+    </section>
+
+    <section class="grid">
+      <div class="card item">
+        <span>🏋️</span>
+        <h3>Meus Treinos</h3>
+        <p>Ver treino atual</p>
+      </div>
+
+      <div class="card item">
+        <span>📊</span>
+        <h3>Avaliações</h3>
+        <p>Medidas e evolução</p>
+      </div>
+
+      <div class="card item">
+        <span>💰</span>
+        <h3>Mensalidades</h3>
+        <p>Planos e pagamentos</p>
+      </div>
+
+      <div class="card item">
+        <span>📅</span>
+        <h3>Agenda</h3>
+        <p>Marcar treino</p>
+      </div>
+
+      <div class="card item">
+        <span>🏆</span>
+        <h3>Pódium</h3>
+        <p>Ranking dos alunos</p>
+      </div>
+
+      <div class="card item">
+        <span>⚙️</span>
+        <h3>Perfil</h3>
+        <p>Meus dados</p>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="modalPersonal" class="modal">
+    <div class="modal-box">
+      <h2>Conectar Personal</h2>
+      <p>Digite o código fornecido pelo seu personal.</p>
+
+      <input type="text" id="codigoPersonal" placeholder="Ex: ALESSANDRO123">
+
+      <button onclick="conectarPersonal()">Conectar</button>
+      <button onclick="fecharModal()" class="cancelar">Cancelar</button>
+    </div>
+  </div>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="aluno.js"></script>
+</body>
+</html>

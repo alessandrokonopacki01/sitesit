@@ -86,26 +86,33 @@ window.sair = async function () {
 };
 
 onAuthStateChanged(auth, async (usuario) => {
-  if (usuario) {
-    const ref = doc(db, "usuarios", usuario.uid);
-    const snap = await getDoc(ref);
 
-    if (snap.exists()) {
-      const dados = snap.data();
+  if (!usuario) {
 
-      document.getElementById("loginBox").classList.add("oculto");
-      document.getElementById("cadastroBox").classList.add("oculto");
-      document.getElementById("painelBox").classList.remove("oculto");
-
-      document.getElementById("bemVindo").innerText = `Olá, ${dados.nome}`;
-      document.getElementById("tipoUsuario").innerText = `Conta: ${dados.tipo}`;
-
-      if (dados.tipo === "personal") {
-        document.getElementById("tipoUsuario").innerText += ` | Código: ${dados.codigoPersonal}`;
-      }
-    }
-  } else {
     document.getElementById("painelBox").classList.add("oculto");
     document.getElementById("loginBox").classList.remove("oculto");
+    return;
+
   }
+
+  const ref = doc(db, "usuarios", usuario.uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    alert("Usuário não encontrado.");
+    return;
+  }
+
+  const dados = snap.data();
+
+  if (dados.tipo === "aluno") {
+    window.location.href = "aluno.html";
+    return;
+  }
+
+  if (dados.tipo === "personal") {
+    window.location.href = "personal.html";
+    return;
+  }
+
 });
