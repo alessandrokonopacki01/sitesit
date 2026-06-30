@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Treinos</title>
+  <link rel="stylesheet" href="aluno.css">
+</head>
+<body>
+
+  <main class="app">
+
+    <header class="topo">
+      <div>
+        <p>Área do Aluno</p>
+        <h1>Meus Treinos</h1>
+      </div>
+      <button onclick="voltar()" class="btn-sair">Voltar</button>
+    </header>
+
+    <section class="card">
+      <h2>Treinos recebidos</h2>
+      <div id="listaTreinos" style="margin-top: 15px;">
+        <p>Carregando treinos...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="treinos-aluno.js"></script>
+</body>
+</html>
