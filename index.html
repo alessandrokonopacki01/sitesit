@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitCoach</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="container">
+    <div class="logo">🏋️ FitCoach</div>
+
+    <section id="loginBox" class="card">
+      <h1>Entrar</h1>
+
+      <input type="email" id="loginEmail" placeholder="E-mail">
+      <input type="password" id="loginSenha" placeholder="Senha">
+
+      <button onclick="login()">Entrar</button>
+
+      <p>Não tem conta?
+        <span onclick="mostrarCadastro()">Cadastre-se</span>
+      </p>
+    </section>
+
+    <section id="cadastroBox" class="card oculto">
+      <h1>Cadastrar</h1>
+
+      <input type="text" id="cadastroNome" placeholder="Nome completo">
+      <input type="email" id="cadastroEmail" placeholder="E-mail">
+      <input type="password" id="cadastroSenha" placeholder="Senha">
+
+      <select id="cadastroTipo">
+        <option value="">Escolha o tipo de conta</option>
+        <option value="aluno">Aluno</option>
+        <option value="personal">Personal</option>
+      </select>
+
+      <button onclick="cadastrar()">Criar conta</button>
+
+      <p>Já tem conta?
+        <span onclick="mostrarLogin()">Entrar</span>
+      </p>
+    </section>
+
+    <section id="painelBox" class="card oculto">
+      <h1 id="bemVindo">Bem-vindo</h1>
+      <p id="tipoUsuario"></p>
+      <button onclick="sair()">Sair</button>
+    </section>
+  </main>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
