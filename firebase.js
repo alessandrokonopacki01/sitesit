@@ -3,12 +3,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyDcTR5WwQBD6LQpxUYRhlx3B4RNmw3CTKw",
+  authDomain: "sitefit-b8bed.firebaseapp.com",
+  projectId: "sitefit-b8bed",
+  storageBucket: "sitefit-b8bed.firebasestorage.app",
+  messagingSenderId: "546133381610",
+  appId: "1:546133381610:web:cc1671d44093e678bee293"
 };
 
 const app = initializeApp(firebaseConfig);
