@@ -53,10 +53,35 @@ async function carregarTreinos() {
     item.style.borderRadius = "12px";
     item.style.marginBottom = "12px";
 
-    item.innerHTML = `
-      <strong>${treino.titulo}</strong>
-      <p style="text-align:left; margin-top:8px; white-space:pre-line;">${treino.descricao}</p>
+    let exerciciosHtml = "";
+
+if (treino.exercicios && treino.exercicios.length > 0) {
+  treino.exercicios.forEach((exercicio, index) => {
+    exerciciosHtml += `
+      <div style="background:#1c1c24; padding:12px; border-radius:10px; margin-top:10px;">
+        <strong>${index + 1}. ${exercicio.nome}</strong>
+        <p style="text-align:left;">Grupo: ${exercicio.grupo || "-"}</p>
+        <p style="text-align:left;">Séries: ${exercicio.series || "-"}</p>
+        <p style="text-align:left;">Repetições: ${exercicio.repeticoes || "-"}</p>
+        <p style="text-align:left;">Carga: ${exercicio.carga || "-"}</p>
+        <p style="text-align:left;">Descanso: ${exercicio.descanso || "-"}</p>
+        <p style="text-align:left;">Obs: ${exercicio.observacao || "-"}</p>
+        ${
+          exercicio.video
+            ? `<p style="text-align:left;"><a href="${exercicio.video}" target="_blank" style="color:#22c55e;">Ver vídeo</a></p>`
+            : ""
+        }
+      </div>
     `;
+  });
+} else {
+  exerciciosHtml = `<p style="text-align:left; margin-top:8px; white-space:pre-line;">${treino.descricao || ""}</p>`;
+}
+
+item.innerHTML = `
+  <strong>${treino.titulo}</strong>
+  ${exerciciosHtml}
+`;
 
     lista.appendChild(item);
   });

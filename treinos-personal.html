@@ -19,7 +19,7 @@
     </header>
 
     <section class="card">
-      <h2>Novo treino</h2>
+      <h2>Nova ficha</h2>
 
       <select id="alunoSelect">
         <option value="">Selecione o aluno</option>
@@ -27,14 +27,33 @@
 
       <input type="text" id="tituloTreino" placeholder="Ex: Treino A - Peito e Tríceps">
 
-      <textarea id="descricaoTreino" placeholder="Digite os exercícios, séries e repetições"></textarea>
+      <hr style="margin: 20px 0; border-color: #333;">
 
-      <button onclick="salvarTreino()">Salvar treino</button>
+      <h3>Adicionar exercício</h3>
+
+      <select id="exercicioSelect">
+        <option value="">Selecione um exercício</option>
+      </select>
+
+      <input type="number" id="series" placeholder="Séries. Ex: 4">
+      <input type="text" id="repeticoes" placeholder="Repetições. Ex: 8 a 12">
+      <input type="text" id="carga" placeholder="Carga. Ex: 40 kg">
+      <input type="text" id="descanso" placeholder="Descanso. Ex: 60s">
+
+      <textarea id="observacaoExercicio" placeholder="Observação do exercício"></textarea>
+
+      <button onclick="adicionarExercicioAoTreino()">Adicionar exercício</button>
     </section>
 
     <section class="card" style="margin-top: 25px;">
-      <h2>Treinos criados</h2>
-      <div id="listaTreinos" style="margin-top: 15px;"></div>
+      <h2>Exercícios da ficha</h2>
+      <div id="listaFicha" style="margin-top: 15px;">
+        <p>Nenhum exercício adicionado.</p>
+      </div>
+
+      <button onclick="salvarTreino()" style="margin-top: 15px;">
+        Salvar ficha para o aluno
+      </button>
     </section>
 
   </main>

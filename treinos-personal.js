@@ -10,11 +10,12 @@ import {
   where,
   getDocs,
   addDoc,
-  serverTimestamp,
-  orderBy
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 let personalAtual = null;
+let exerciciosGaleria = [];
+let fichaAtual = [];
 
 window.voltar = function () {
   window.location.href = "personal.html";
@@ -29,7 +30,7 @@ onAuthStateChanged(auth, async (user) => {
   personalAtual = user;
 
   await carregarAlunos();
-  await carregarTreinos();
+  await carregarExercicios();
 });
 
 async function carregarAlunos() {
@@ -53,13 +54,130 @@ async function carregarAlunos() {
   });
 }
 
+async function carregarExercicios() {
+  const q = query(
+    collection(db, "exercicios"),
+    where("personalId", "==", personalAtual.uid)
+  );
+
+  const resultado = await getDocs(q);
+  const select = document.getElementById("exercicioSelect");
+
+  exerciciosGaleria = [];
+
+  resultado.forEach((docExercicio) => {
+    const exercicio = {
+      id: docExercicio.id,
+      ...docExercicio.data()
+    };
+
+    exerciciosGaleria.push(exercicio);
+
+    const option = document.createElement("option");
+    option.value = exercicio.id;
+    option.textContent = `${exercicio.nome} - ${exercicio.grupo}`;
+
+    select.appendChild(option);
+  });
+}
+
+window.adicionarExercicioAoTreino = function () {
+  const exercicioId = document.getElementById("exercicioSelect").value;
+  const series = document.getElementById("series").value;
+  const repeticoes = document.getElementById("repeticoes").value.trim();
+  const carga = document.getElementById("carga").value.trim();
+  const descanso = document.getElementById("descanso").value.trim();
+  const observacao = document.getElementById("observacaoExercicio").value.trim();
+
+  if (!exercicioId || !series || !repeticoes) {
+    alert("Selecione o exercício e preencha séries e repetições.");
+    return;
+  }
+
+  const exercicioBase = exerciciosGaleria.find(ex => ex.id === exercicioId);
+
+  if (!exercicioBase) {
+    alert("Exercício não encontrado.");
+    return;
+  }
+
+  fichaAtual.push({
+    exercicioId: exercicioBase.id,
+    nome: exercicioBase.nome,
+    grupo: exercicioBase.grupo,
+    equipamento: exercicioBase.equipamento || "",
+    video: exercicioBase.video || "",
+    descricao: exercicioBase.descricao || "",
+    series: Number(series),
+    repeticoes,
+    carga,
+    descanso,
+    observacao
+  });
+
+  limparCamposExercicio();
+  renderizarFicha();
+};
+
+function limparCamposExercicio() {
+  document.getElementById("exercicioSelect").value = "";
+  document.getElementById("series").value = "";
+  document.getElementById("repeticoes").value = "";
+  document.getElementById("carga").value = "";
+  document.getElementById("descanso").value = "";
+  document.getElementById("observacaoExercicio").value = "";
+}
+
+function renderizarFicha() {
+  const lista = document.getElementById("listaFicha");
+
+  lista.innerHTML = "";
+
+  if (fichaAtual.length === 0) {
+    lista.innerHTML = "<p>Nenhum exercício adicionado.</p>";
+    return;
+  }
+
+  fichaAtual.forEach((exercicio, index) => {
+    const item = document.createElement("div");
+    item.style.background = "#101014";
+    item.style.padding = "14px";
+    item.style.borderRadius = "12px";
+    item.style.marginBottom = "12px";
+
+    item.innerHTML = `
+      <strong>${index + 1}. ${exercicio.nome}</strong>
+      <p style="text-align:left;">Grupo: ${exercicio.grupo}</p>
+      <p style="text-align:left;">Séries: ${exercicio.series}</p>
+      <p style="text-align:left;">Repetições: ${exercicio.repeticoes}</p>
+      <p style="text-align:left;">Carga: ${exercicio.carga || "-"}</p>
+      <p style="text-align:left;">Descanso: ${exercicio.descanso || "-"}</p>
+      <p style="text-align:left;">Obs: ${exercicio.observacao || "-"}</p>
+      <button onclick="removerExercicio(${index})" style="margin-top:10px; background:#ef4444;">
+        Remover
+      </button>
+    `;
+
+    lista.appendChild(item);
+  });
+}
+
+window.removerExercicio = function (index) {
+  fichaAtual.splice(index, 1);
+  renderizarFicha();
+};
+
 window.salvarTreino = async function () {
   const alunoId = document.getElementById("alunoSelect").value;
   const titulo = document.getElementById("tituloTreino").value.trim();
-  const descricao = document.getElementById("descricaoTreino").value.trim();
 
-  if (!alunoId || !titulo || !descricao) {
-    alert("Preencha todos os campos.");
+  if (!alunoId || !titulo) {
+    alert("Selecione o aluno e digite o título do treino.");
+    return;
+  }
+
+  if (fichaAtual.length === 0) {
+    alert("Adicione pelo menos um exercício.");
     return;
   }
 
@@ -67,49 +185,16 @@ window.salvarTreino = async function () {
     personalId: personalAtual.uid,
     alunoId,
     titulo,
-    descricao,
+    tipo: "ficha",
+    exercicios: fichaAtual,
     status: "ativo",
     criadoEm: serverTimestamp()
   });
 
-  alert("Treino salvo com sucesso!");
+  alert("Ficha salva com sucesso!");
 
+  document.getElementById("alunoSelect").value = "";
   document.getElementById("tituloTreino").value = "";
-  document.getElementById("descricaoTreino").value = "";
-
-  carregarTreinos();
+  fichaAtual = [];
+  renderizarFicha();
 };
-
-async function carregarTreinos() {
-  const q = query(
-    collection(db, "treinos"),
-    where("personalId", "==", personalAtual.uid)
-  );
-
-  const resultado = await getDocs(q);
-  const lista = document.getElementById("listaTreinos");
-
-  lista.innerHTML = "";
-
-  if (resultado.empty) {
-    lista.innerHTML = "<p>Nenhum treino criado ainda.</p>";
-    return;
-  }
-
-  resultado.forEach((docTreino) => {
-    const treino = docTreino.data();
-
-    const item = document.createElement("div");
-    item.style.background = "#101014";
-    item.style.padding = "14px";
-    item.style.borderRadius = "12px";
-    item.style.marginBottom = "10px";
-
-    item.innerHTML = `
-      <strong>${treino.titulo}</strong>
-      <p style="text-align:left; margin-top:8px;">${treino.descricao}</p>
-    `;
-
-    lista.appendChild(item);
-  });
-}
