@@ -3,7 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Avaliações Físicas</title>
 
@@ -20,7 +24,11 @@
         <h1>Avaliações</h1>
       </div>
 
-      <button onclick="voltar()" class="btn-sair">
+      <button
+        type="button"
+        onclick="voltar()"
+        class="btn-sair"
+      >
         Voltar
       </button>
     </header>
@@ -29,18 +37,61 @@
 
       <h2>Nova avaliação</h2>
 
-      <!-- Seleção do aluno -->
-      <label for="alunoSelect">Aluno</label>
+      <label for="alunoSelect">
+        Aluno
+      </label>
 
       <select id="alunoSelect">
-        <option value="">Selecione o aluno</option>
+        <option value="">
+          Selecione o aluno
+        </option>
       </select>
 
-      <!-- Dados gerais -->
-      <label for="dataAvaliacao">Data da avaliação</label>
-      <input type="date" id="dataAvaliacao">
+      <label for="dataAvaliacao">
+        Data da avaliação
+      </label>
 
-      <select id="protocolo">
+      <input
+        type="date"
+        id="dataAvaliacao"
+      >
+
+      <label for="peso">
+        Peso
+      </label>
+
+      <input
+        type="number"
+        id="peso"
+        placeholder="Peso em kg"
+        min="1"
+        step="0.1"
+      >
+
+      <label for="altura">
+        Altura
+      </label>
+
+      <input
+        type="number"
+        id="altura"
+        placeholder="Altura em cm"
+        min="1"
+        step="0.1"
+      >
+
+      <hr>
+
+      <h3>Composição corporal</h3>
+
+      <label for="protocolo">
+        Protocolo de avaliação
+      </label>
+
+      <select
+        id="protocolo"
+        onchange="atualizarCamposDobras()"
+      >
         <option value="jacksonPollock3">
           Jackson e Pollock — 3 dobras
         </option>
@@ -62,39 +113,58 @@
         </option>
       </select>
 
-      <label for="peso">Peso</label>
-      <input type="number" id="peso" placeholder="Peso em kg" min="1" step="0.1">
+      <label for="sexo">
+        Sexo utilizado no protocolo
+      </label>
 
-      <label for="altura">Altura</label>
-      <input type="number" id="altura" placeholder="Altura em cm" min="1" step="0.1">
+      <select
+        id="sexo"
+        onchange="atualizarCamposDobras()"
+      >
+        <option value="M">
+          Masculino
+        </option>
 
-      <hr>
-
-      <!-- Composição corporal -->
-      <h3>Composição corporal</h3>
-
-      <label for="sexo">Sexo utilizado no protocolo</label>
-
-      <select id="sexo" onchange="trocarDobras()">
-        <option value="M">Masculino</option>
-        <option value="F">Feminino</option>
+        <option value="F">
+          Feminino
+        </option>
       </select>
 
-      <label for="idade">Idade</label>
+      <div id="grupoIdade">
 
-      <input type="number" id="idade" placeholder="Idade do aluno" min="1" max="120">
+        <label for="idade">
+          Idade
+        </label>
 
-      <!-- Os campos das dobras serão criados pelo JavaScript -->
+        <input
+          type="number"
+          id="idade"
+          placeholder="Idade do aluno"
+          min="7"
+          max="120"
+        >
+
+      </div>
+
+      <div id="descricaoProtocolo"></div>
+
       <div id="dobras"></div>
 
-      <button type="button" onclick="calcularComposicao()">
+      <button
+        type="button"
+        onclick="calcularComposicao()"
+      >
         Calcular composição corporal
       </button>
 
-      <!-- Resultados -->
       <div id="resultadoComposicao">
 
-        <h3>Resultado da composição corporal</h3>
+        <h3>Resultado</h3>
+
+        <p>
+          <strong>Protocolo:</strong>
+          <span id="resultadoProtocolo">-</span>
+        </p>
 
         <p>
           <strong>IMC:</strong>
@@ -102,8 +172,14 @@
         </p>
 
         <p>
+          <strong>Classificação do IMC:</strong>
+          <span id="resultadoClassificacaoIMC">-</span>
+        </p>
+
+        <p>
           <strong>Soma das dobras:</strong>
-          <span id="resultadoDobras">-</span> mm
+          <span id="resultadoDobras">-</span>
+          mm
         </p>
 
         <p>
@@ -113,38 +189,76 @@
 
         <p>
           <strong>Massa gorda:</strong>
-          <span id="resultadoMG">-</span> kg
+          <span id="resultadoMG">-</span>
+          kg
         </p>
 
         <p>
           <strong>Massa magra:</strong>
-          <span id="resultadoMM">-</span> kg
+          <span id="resultadoMM">-</span>
+          kg
+        </p>
+
+        <p>
+          <strong>Densidade corporal:</strong>
+          <span id="resultadoDensidade">-</span>
         </p>
 
       </div>
 
       <hr>
 
-      <!-- Medidas corporais -->
       <h3>Medidas corporais</h3>
 
-      <label for="cintura">Cintura</label>
+      <label for="cintura">
+        Cintura
+      </label>
 
-      <input type="number" id="cintura" placeholder="Cintura em cm" min="0" step="0.1">
+      <input
+        type="number"
+        id="cintura"
+        placeholder="Cintura em cm"
+        min="0"
+        step="0.1"
+      >
 
-      <label for="braco">Braço</label>
+      <label for="braco">
+        Braço
+      </label>
 
-      <input type="number" id="braco" placeholder="Braço em cm" min="0" step="0.1">
+      <input
+        type="number"
+        id="braco"
+        placeholder="Braço em cm"
+        min="0"
+        step="0.1"
+      >
 
-      <label for="coxa">Coxa</label>
+      <label for="coxa">
+        Circunferência da coxa
+      </label>
 
-      <input type="number" id="coxa" placeholder="Coxa em cm" min="0" step="0.1">
+      <input
+        type="number"
+        id="coxa"
+        placeholder="Coxa em cm"
+        min="0"
+        step="0.1"
+      >
 
-      <label for="observacoes">Observações</label>
+      <label for="observacoes">
+        Observações
+      </label>
 
-      <textarea id="observacoes" placeholder="Observações da avaliação"></textarea>
+      <textarea
+        id="observacoes"
+        placeholder="Observações da avaliação"
+      ></textarea>
 
-      <button type="button" onclick="salvarAvaliacao()">
+      <button
+        type="button"
+        onclick="salvarAvaliacao()"
+      >
         Salvar avaliação
       </button>
 
@@ -152,8 +266,15 @@
 
   </main>
 
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="avaliacoes-personal.js"></script>
+  <script
+    type="module"
+    src="firebase.js"
+  ></script>
+
+  <script
+    type="module"
+    src="avaliacoes-personal.js"
+  ></script>
 
 </body>
 
