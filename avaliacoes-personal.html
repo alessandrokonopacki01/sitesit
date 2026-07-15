@@ -40,23 +40,33 @@
       <label for="dataAvaliacao">Data da avaliação</label>
       <input type="date" id="dataAvaliacao">
 
+      <select id="protocolo">
+        <option value="jacksonPollock3">
+          Jackson e Pollock — 3 dobras
+        </option>
+
+        <option value="jacksonPollock7">
+          Jackson e Pollock — 7 dobras
+        </option>
+
+        <option value="durninWomersley">
+          Durnin e Womersley — 4 dobras
+        </option>
+
+        <option value="guedes">
+          Guedes — 3 dobras
+        </option>
+
+        <option value="faulkner">
+          Faulkner tradicional — 4 dobras
+        </option>
+      </select>
+
       <label for="peso">Peso</label>
-      <input
-        type="number"
-        id="peso"
-        placeholder="Peso em kg"
-        min="1"
-        step="0.1"
-      >
+      <input type="number" id="peso" placeholder="Peso em kg" min="1" step="0.1">
 
       <label for="altura">Altura</label>
-      <input
-        type="number"
-        id="altura"
-        placeholder="Altura em cm"
-        min="1"
-        step="0.1"
-      >
+      <input type="number" id="altura" placeholder="Altura em cm" min="1" step="0.1">
 
       <hr>
 
@@ -72,21 +82,12 @@
 
       <label for="idade">Idade</label>
 
-      <input
-        type="number"
-        id="idade"
-        placeholder="Idade do aluno"
-        min="1"
-        max="120"
-      >
+      <input type="number" id="idade" placeholder="Idade do aluno" min="1" max="120">
 
       <!-- Os campos das dobras serão criados pelo JavaScript -->
       <div id="dobras"></div>
 
-      <button
-        type="button"
-        onclick="calcularComposicao()"
-      >
+      <button type="button" onclick="calcularComposicao()">
         Calcular composição corporal
       </button>
 
@@ -129,45 +130,21 @@
 
       <label for="cintura">Cintura</label>
 
-      <input
-        type="number"
-        id="cintura"
-        placeholder="Cintura em cm"
-        min="0"
-        step="0.1"
-      >
+      <input type="number" id="cintura" placeholder="Cintura em cm" min="0" step="0.1">
 
       <label for="braco">Braço</label>
 
-      <input
-        type="number"
-        id="braco"
-        placeholder="Braço em cm"
-        min="0"
-        step="0.1"
-      >
+      <input type="number" id="braco" placeholder="Braço em cm" min="0" step="0.1">
 
       <label for="coxa">Coxa</label>
 
-      <input
-        type="number"
-        id="coxa"
-        placeholder="Coxa em cm"
-        min="0"
-        step="0.1"
-      >
+      <input type="number" id="coxa" placeholder="Coxa em cm" min="0" step="0.1">
 
       <label for="observacoes">Observações</label>
 
-      <textarea
-        id="observacoes"
-        placeholder="Observações da avaliação"
-      ></textarea>
+      <textarea id="observacoes" placeholder="Observações da avaliação"></textarea>
 
-      <button
-        type="button"
-        onclick="salvarAvaliacao()"
-      >
+      <button type="button" onclick="salvarAvaliacao()">
         Salvar avaliação
       </button>
 
