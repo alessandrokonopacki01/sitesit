@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Avaliações Físicas</title>
+
   <link rel="stylesheet" href="aluno.css">
 </head>
+
 <body>
 
   <main class="app">
@@ -15,32 +19,165 @@
         <p>Área do Personal</p>
         <h1>Avaliações</h1>
       </div>
-      <button onclick="voltar()" class="btn-sair">Voltar</button>
+
+      <button onclick="voltar()" class="btn-sair">
+        Voltar
+      </button>
     </header>
 
     <section class="card">
+
       <h2>Nova avaliação</h2>
+
+      <!-- Seleção do aluno -->
+      <label for="alunoSelect">Aluno</label>
 
       <select id="alunoSelect">
         <option value="">Selecione o aluno</option>
       </select>
 
+      <!-- Dados gerais -->
+      <label for="dataAvaliacao">Data da avaliação</label>
       <input type="date" id="dataAvaliacao">
-      <input type="number" id="peso" placeholder="Peso em kg">
-      <input type="number" id="altura" placeholder="Altura em cm">
-      <input type="number" id="gordura" placeholder="Gordura corporal %">
-      <input type="number" id="cintura" placeholder="Cintura em cm">
-      <input type="number" id="braco" placeholder="Braço em cm">
-      <input type="number" id="coxa" placeholder="Coxa em cm">
 
-      <textarea id="observacoes" placeholder="Observações da avaliação"></textarea>
+      <label for="peso">Peso</label>
+      <input
+        type="number"
+        id="peso"
+        placeholder="Peso em kg"
+        min="1"
+        step="0.1"
+      >
 
-      <button onclick="salvarAvaliacao()">Salvar avaliação</button>
+      <label for="altura">Altura</label>
+      <input
+        type="number"
+        id="altura"
+        placeholder="Altura em cm"
+        min="1"
+        step="0.1"
+      >
+
+      <hr>
+
+      <!-- Composição corporal -->
+      <h3>Composição corporal</h3>
+
+      <label for="sexo">Sexo utilizado no protocolo</label>
+
+      <select id="sexo" onchange="trocarDobras()">
+        <option value="M">Masculino</option>
+        <option value="F">Feminino</option>
+      </select>
+
+      <label for="idade">Idade</label>
+
+      <input
+        type="number"
+        id="idade"
+        placeholder="Idade do aluno"
+        min="1"
+        max="120"
+      >
+
+      <!-- Os campos das dobras serão criados pelo JavaScript -->
+      <div id="dobras"></div>
+
+      <button
+        type="button"
+        onclick="calcularComposicao()"
+      >
+        Calcular composição corporal
+      </button>
+
+      <!-- Resultados -->
+      <div id="resultadoComposicao">
+
+        <h3>Resultado da composição corporal</h3>
+
+        <p>
+          <strong>IMC:</strong>
+          <span id="resultadoIMC">-</span>
+        </p>
+
+        <p>
+          <strong>Soma das dobras:</strong>
+          <span id="resultadoDobras">-</span> mm
+        </p>
+
+        <p>
+          <strong>Percentual de gordura:</strong>
+          <span id="resultadoGordura">-</span>
+        </p>
+
+        <p>
+          <strong>Massa gorda:</strong>
+          <span id="resultadoMG">-</span> kg
+        </p>
+
+        <p>
+          <strong>Massa magra:</strong>
+          <span id="resultadoMM">-</span> kg
+        </p>
+
+      </div>
+
+      <hr>
+
+      <!-- Medidas corporais -->
+      <h3>Medidas corporais</h3>
+
+      <label for="cintura">Cintura</label>
+
+      <input
+        type="number"
+        id="cintura"
+        placeholder="Cintura em cm"
+        min="0"
+        step="0.1"
+      >
+
+      <label for="braco">Braço</label>
+
+      <input
+        type="number"
+        id="braco"
+        placeholder="Braço em cm"
+        min="0"
+        step="0.1"
+      >
+
+      <label for="coxa">Coxa</label>
+
+      <input
+        type="number"
+        id="coxa"
+        placeholder="Coxa em cm"
+        min="0"
+        step="0.1"
+      >
+
+      <label for="observacoes">Observações</label>
+
+      <textarea
+        id="observacoes"
+        placeholder="Observações da avaliação"
+      ></textarea>
+
+      <button
+        type="button"
+        onclick="salvarAvaliacao()"
+      >
+        Salvar avaliação
+      </button>
+
     </section>
 
   </main>
 
   <script type="module" src="firebase.js"></script>
   <script type="module" src="avaliacoes-personal.js"></script>
+
 </body>
+
 </html>
