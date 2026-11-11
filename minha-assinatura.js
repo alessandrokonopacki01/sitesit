@@ -194,25 +194,63 @@ function atualizarDadosPlano(assinatura, status) {
   $("dataVencimento").textContent =
     formatarData(assinatura.vencimento);
 
-  const mensagens = {
-    ativo:
-      "Sua assinatura está ativa. Você pode continuar utilizando o FitCoach.",
 
-    teste:
-      "Você está utilizando o período de teste gratuito do FitCoach.",
+const whatsapp = "https://wa.me/5542999806150?text=" +
+  encodeURIComponent(
+    "Olá! Sou personal do FitCoach e gostaria de renovar minha assinatura. Pode me enviar a chave Pix?"
+  );
 
-    vencido:
-      "Sua assinatura venceu. Entre em contato para renovar seu acesso.",
+const mensagens = {
+  ativo:
+    "Sua assinatura está ativa. Você pode continuar utilizando o FitCoach.",
 
-    bloqueado:
-      "Seu acesso foi bloqueado pelo administrador.",
+  teste:
+    "Você está utilizando o período de teste gratuito do FitCoach.",
 
-    liberado:
-      "Seu acesso foi liberado manualmente pelo administrador.",
+  vencido:
+    "Sua assinatura venceu. Solicite a renovação pelo WhatsApp.",
 
-    sem_assinatura:
-      "Sua assinatura ainda não possui uma data de vencimento válida."
-  };
+  bloqueado:
+    "Seu acesso foi bloqueado. Entre em contato pelo WhatsApp.",
+
+  liberado:
+    "Seu acesso foi liberado manualmente pelo administrador.",
+
+  sem_assinatura:
+    "Você ainda não possui uma assinatura ativa. Solicite seu plano pelo WhatsApp."
+};
+
+$("mensagemPlano").textContent =
+  mensagens[status] || "Consulte o administrador.";
+
+const mensagemPlano = $("mensagemPlano");
+
+// Evita criar links duplicados.
+document.getElementById("linkRenovacao")?.remove();
+
+if (["vencido", "bloqueado", "sem_assinatura"].includes(status)) {
+  const link = document.createElement("a");
+
+  link.id = "linkRenovacao";
+  link.href = whatsapp;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = "💬 Solicitar renovação pelo WhatsApp";
+
+  link.style.cssText = `
+    display: inline-block;
+    margin-top: 15px;
+    padding: 12px 18px;
+    background: #25D366;
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+  `;
+
+  mensagemPlano.insertAdjacentElement("afterend", link);
+}
+
 
   $("mensagemPlano").textContent =
     mensagens[status] || "Consulte o administrador.";
