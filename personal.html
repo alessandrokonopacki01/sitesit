@@ -1,10 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Personal</title>
+
+    <title>Painel do Personal | FitCoach</title>
+
     <link rel="stylesheet" href="aluno.css">
 </head>
 
@@ -17,70 +20,127 @@
                 <p>Bem-vindo, Personal</p>
                 <h1 id="nomePersonal">Personal</h1>
             </div>
-            <button onclick="sair()" class="btn-sair">Sair</button>
+
+            <button onclick="sair()" class="btn-sair">
+                Sair
+            </button>
         </header>
+
+        <!-- CÓDIGO DE VINCULAÇÃO -->
 
         <section class="card destaque">
             <p>Seu código para alunos</p>
-            <h2 id="codigoPersonal">Carregando...</h2>
-            <button onclick="copiarCodigo()">Copiar código</button>
+
+            <h2 id="codigoPersonal">
+                Carregando...
+            </h2>
+
+            <button onclick="copiarCodigo()">
+                Copiar código
+            </button>
         </section>
 
+        <!-- FUNCIONALIDADES -->
+
         <section class="grid">
+
             <div class="card item">
                 <span>👥</span>
                 <h3>Meus Alunos</h3>
                 <p id="totalAlunos">0 alunos</p>
             </div>
 
-            <div class="card item" onclick="window.location.href='treinos-personal.html'">
+            <div
+                class="card item"
+                onclick="window.location.href='treinos-personal.html'"
+            >
                 <span>🏋️</span>
                 <h3>Treinos</h3>
                 <p>Criar e enviar treinos</p>
             </div>
 
-            <div class="card item" onclick="window.location.href='avaliacoes-personal.html'">
+            <div
+                class="card item"
+                onclick="window.location.href='avaliacoes-personal.html'"
+            >
                 <span>📊</span>
                 <h3>Avaliações</h3>
-                <p>Cadastrar evolução</p>
+                <p>Cadastrar avaliações físicas</p>
             </div>
 
-            <div class="card item" onclick="window.location.href='agenda-personal.html'">
+            <!-- NOVA FUNCIONALIDADE -->
+
+            <div
+                class="card item"
+                onclick="window.location.href='evolucao.html'"
+            >
+                <span>📈</span>
+                <h3>Evolução Física</h3>
+                <p>Gráficos de evolução dos alunos</p>
+            </div>
+
+            <div
+                class="card item"
+                onclick="window.location.href='agenda-personal.html'"
+            >
                 <span>📅</span>
                 <h3>Agenda</h3>
                 <p>Horários e aulas</p>
             </div>
 
-            <div class="card item" onclick="window.location.href='mensalidades-personal.html'">
+            <div
+                class="card item"
+                onclick="window.location.href='mensalidades-personal.html'"
+            >
                 <span>💰</span>
                 <h3>Financeiro</h3>
-                <p>Mensalidades</p>
+                <p>Controle de mensalidades</p>
             </div>
 
             <div class="card item">
                 <span>🏆</span>
                 <h3>Ranking</h3>
-                <p>Pódium dos alunos</p>
+                <p>Pódio dos alunos</p>
             </div>
-            
-            <div class="card item" onclick="window.location.href='exercicios-personal.html'">
+
+            <div
+                class="card item"
+                onclick="window.location.href='exercicios-personal.html'"
+            >
                 <span>📚</span>
                 <h3>Exercícios</h3>
                 <p>Galeria de exercícios</p>
             </div>
+
         </section>
 
+        <!-- ALUNOS VINCULADOS -->
+
         <section class="card" style="margin-top: 25px;">
+
             <h2>Alunos vinculados</h2>
-            <div id="listaAlunos" style="margin-top: 15px;">
+
+            <div
+                id="listaAlunos"
+                style="margin-top: 15px;"
+            >
                 <p>Nenhum aluno vinculado ainda.</p>
             </div>
+
         </section>
 
     </main>
 
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="personal.js"></script>
+    <script
+        type="module"
+        src="firebase.js"
+    ></script>
+
+    <script
+        type="module"
+        src="personal.js"
+    ></script>
+
 </body>
 
 </html>

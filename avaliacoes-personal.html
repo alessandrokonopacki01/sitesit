@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -12,6 +13,7 @@
   <title>Avaliações Físicas</title>
 
   <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="evolucao.css">
 </head>
 
 <body>
@@ -210,41 +212,86 @@
 
       <h3>Medidas corporais</h3>
 
-      <label for="cintura">
-        Cintura
-      </label>
+      <p class="medidas-ajuda">
+        Todas em centímetros (cm).
+        Preencha apenas as medidas realizadas.
+      </p>
 
-      <input
-        type="number"
-        id="cintura"
-        placeholder="Cintura em cm"
-        min="0"
-        step="0.1"
-      >
+      <div class="medidas-grid">
 
-      <label for="braco">
-        Braço
-      </label>
+        <div>
+          <label for="bracoDireito">Braço direito</label>
+          <input type="number" id="bracoDireito"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
 
-      <input
-        type="number"
-        id="braco"
-        placeholder="Braço em cm"
-        min="0"
-        step="0.1"
-      >
+        <div>
+          <label for="bracoEsquerdo">Braço esquerdo</label>
+          <input type="number" id="bracoEsquerdo"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
 
-      <label for="coxa">
-        Circunferência da coxa
-      </label>
+        <div>
+          <label for="coxaDireita">Coxa direita</label>
+          <input type="number" id="coxaDireita"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
 
-      <input
-        type="number"
-        id="coxa"
-        placeholder="Coxa em cm"
-        min="0"
-        step="0.1"
-      >
+        <div>
+          <label for="coxaEsquerda">Coxa esquerda</label>
+          <input type="number" id="coxaEsquerda"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="panturrilhaDireita">Panturrilha direita</label>
+          <input type="number" id="panturrilhaDireita"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="panturrilhaEsquerda">Panturrilha esquerda</label>
+          <input type="number" id="panturrilhaEsquerda"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="ombros">Ombros</label>
+          <input type="number" id="ombros"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="peitoral">Peitoral</label>
+          <input type="number" id="peitoral"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="pescoco">Pescoço</label>
+          <input type="number" id="pescoco"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="abdomen">Abdômen</label>
+          <input type="number" id="abdomen"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="cintura">Cintura</label>
+          <input type="number" id="cintura"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+        <div>
+          <label for="gluteos">Glúteos</label>
+          <input type="number" id="gluteos"
+                 min="0" step="0.1" placeholder="cm">
+        </div>
+
+      </div>
 
       <label for="observacoes">
         Observações

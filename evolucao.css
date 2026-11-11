@@ -1,0 +1,299 @@
+
+/* ==========================================
+   FITCOACH — EVOLUÇÃO FÍSICA
+   ========================================== */
+
+/* SEÇÕES */
+
+.evolucao-secao {
+  margin-top: 22px;
+}
+
+.evolucao-secao h2 {
+  font-size: 19px;
+  margin-bottom: 12px;
+}
+
+.evolucao-descricao {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 10px 0 18px;
+}
+
+.evolucao-observacao {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+  margin-top: 14px;
+}
+
+/* ==========================================
+   INDICADORES DE EVOLUÇÃO
+   ========================================== */
+
+.evolucao-resumo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.evolucao-indicador {
+  background: #101014;
+  border: 1px solid #30303a;
+  padding: 16px;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.evolucao-indicador span {
+  display: block;
+  color: #aaa;
+  font-size: 12px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.evolucao-indicador strong {
+  display: block;
+  font-size: 21px;
+  color: #4ade80;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   GRÁFICOS
+   ========================================== */
+
+.evolucao-grafico {
+  width: 100%;
+  height: 310px;
+  margin-top: 20px;
+  position: relative;
+
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 14px;
+
+  padding: 14px;
+  overflow: hidden;
+}
+
+.evolucao-grafico canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ==========================================
+   CAMPOS E SELETORES
+   ========================================== */
+
+.evolucao-secao label,
+#secaoSelecionarAluno label {
+  display: block;
+  font-size: 13px;
+  color: #bbb;
+  margin: 14px 0 8px;
+}
+
+.evolucao-secao select,
+#secaoSelecionarAluno select {
+  width: 100%;
+  padding: 13px 14px;
+
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  background: #18181e;
+  color: #fff;
+  font-size: 14px;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.evolucao-secao select:focus,
+#secaoSelecionarAluno select:focus {
+  border-color: #4ade80;
+}
+
+/* ==========================================
+   LINK PARA EVOLUÇÃO
+   ========================================== */
+
+.evolucao-link {
+  display: block;
+  width: 100%;
+
+  background: #22c55e;
+  color: #08130c;
+
+  padding: 14px 18px;
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+
+  transition: background 0.2s ease;
+}
+
+.evolucao-link:hover {
+  background: #4ade80;
+}
+
+/* ==========================================
+   FORMULÁRIO DE AVALIAÇÃO CORPORAL
+   ========================================== */
+
+.medidas-ajuda {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 12px 0 18px;
+}
+
+.medidas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.medidas-grid > div {
+  min-width: 0;
+}
+
+.medidas-grid label {
+  display: block;
+  color: #bbb;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.medidas-grid input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+}
+
+.campo-dobra {
+  margin-bottom: 12px;
+}
+
+.campo-dobra label {
+  display: block;
+  color: #bbb;
+  font-size: 13px;
+  margin-bottom: 7px;
+}
+
+#descricaoProtocolo {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 14px 0;
+}
+
+#descricaoProtocolo strong {
+  color: #fff;
+}
+
+#resultadoComposicao {
+  margin-top: 22px;
+  background: #101014;
+  border: 1px solid #30303a;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+#resultadoComposicao h3 {
+  margin-bottom: 14px;
+}
+
+#resultadoComposicao p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #bbb;
+  margin: 7px 0;
+  text-align: left;
+}
+
+#resultadoComposicao strong {
+  color: #fff;
+}
+
+/* ==========================================
+   OBSERVAÇÕES
+   ========================================== */
+
+#observacoes {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+
+  box-sizing: border-box;
+  padding: 13px;
+  margin: 8px 0 18px;
+
+  background: #18181e;
+  color: #fff;
+
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  font: inherit;
+}
+
+#observacoes:focus {
+  outline: none;
+  border-color: #4ade80;
+}
+
+/* ==========================================
+   COMPATIBILIDADE COM O ATRIBUTO HIDDEN
+   ========================================== */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (min-width: 768px) {
+  .evolucao-resumo {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .evolucao-grafico {
+    height: 370px;
+  }
+
+  .medidas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .evolucao-indicador {
+    padding: 12px;
+  }
+
+  .evolucao-indicador strong {
+    font-size: 18px;
+  }
+
+  .evolucao-grafico {
+    height: 260px;
+    padding: 8px;
+  }
+
+  .medidas-grid {
+    gap: 10px;
+  }
+}

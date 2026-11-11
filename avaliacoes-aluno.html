@@ -1,33 +1,95 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minhas Avaliações</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Minhas Avaliações | FitCoach</title>
+
   <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="evolucao.css">
 </head>
+
 <body>
 
   <main class="app">
 
     <header class="topo">
+
       <div>
         <p>Área do Aluno</p>
         <h1>Minhas Avaliações</h1>
       </div>
-      <button onclick="voltar()" class="btn-sair">Voltar</button>
+
+      <button
+        type="button"
+        onclick="voltar()"
+        class="btn-sair"
+      >
+        Voltar
+      </button>
+
     </header>
 
+    <!-- EVOLUÇÃO FÍSICA -->
+
+    <section class="card" style="margin-bottom: 18px;">
+
+      <h2>Evolução física</h2>
+
+      <p style="margin: 12px 0; color: #aaa;">
+        Acompanhe a evolução do seu peso,
+        composição corporal e medidas
+        ao longo das avaliações.
+      </p>
+
+      <a
+        href="evolucao.html"
+        class="evolucao-link"
+      >
+        Ver meus gráficos
+      </a>
+
+    </section>
+
+    <!-- HISTÓRICO DE AVALIAÇÕES -->
+
     <section class="card">
-      <h2>Histórico</h2>
-      <div id="listaAvaliacoes" style="margin-top: 15px;">
+
+      <h2>Histórico de avaliações</h2>
+
+      <p style="margin: 10px 0; color: #aaa;">
+        Consulte suas avaliações físicas
+        realizadas pelo personal.
+      </p>
+
+      <div
+        id="listaAvaliacoes"
+        style="margin-top: 15px;"
+      >
         <p>Carregando avaliações...</p>
       </div>
+
     </section>
 
   </main>
 
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="avaliacoes-aluno.js"></script>
+  <script
+    type="module"
+    src="firebase.js"
+  ></script>
+
+  <script
+    type="module"
+    src="avaliacoes-aluno.js"
+  ></script>
+
 </body>
+
 </html>

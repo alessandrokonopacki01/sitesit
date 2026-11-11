@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Evolução Física | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="evolucao.css">
+
+  <!-- Biblioteca para os gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+</head>
+
+<body>
+
+  <main class="app">
+
+    <!-- CABEÇALHO -->
+
+    <header class="topo">
+
+      <div>
+        <p>FitCoach</p>
+        <h1>Evolução Física</h1>
+      </div>
+
+      <button
+        type="button"
+        id="btnVoltar"
+        class="btn-sair"
+      >
+        Voltar
+      </button>
+
+    </header>
+
+    <!-- SELEÇÃO DO ALUNO -->
+
+    <section
+      class="card"
+      id="secaoSelecionarAluno"
+      hidden
+    >
+
+      <h2>Selecionar aluno</h2>
+
+      <p class="evolucao-descricao">
+        Escolha o aluno para acompanhar
+        a evolução das avaliações físicas.
+      </p>
+
+      <label for="alunoEvolucao">
+        Aluno
+      </label>
+
+      <select id="alunoEvolucao">
+        <option value="">
+          Selecione um aluno
+        </option>
+      </select>
+
+    </section>
+
+    <!-- INFORMAÇÕES GERAIS -->
+
+    <section class="card evolucao-secao">
+
+      <h2>Resumo da evolução</h2>
+
+      <p
+        id="nomeAlunoEvolucao"
+        class="evolucao-descricao"
+      >
+        Carregando informações...
+      </p>
+
+      <div class="evolucao-resumo">
+
+        <div class="evolucao-indicador">
+          <span>Avaliações registradas</span>
+          <strong id="totalAvaliacoes">0</strong>
+        </div>
+
+        <div class="evolucao-indicador">
+          <span>Peso atual</span>
+          <strong id="pesoAtual">--</strong>
+        </div>
+
+        <div class="evolucao-indicador">
+          <span>Variação do peso</span>
+          <strong id="variacaoPeso">--</strong>
+        </div>
+
+        <div class="evolucao-indicador">
+          <span>Gordura corporal atual</span>
+          <strong id="gorduraAtual">--</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- GRÁFICO DE PESO CORPORAL -->
+
+    <section class="card evolucao-secao">
+
+      <h2>Peso corporal</h2>
+
+      <p class="evolucao-descricao">
+        Acompanhe as mudanças no peso
+        ao longo das avaliações.
+      </p>
+
+      <div class="evolucao-grafico">
+        <canvas id="graficoPeso"></canvas>
+      </div>
+
+    </section>
+
+    <!-- GRÁFICO DE COMPOSIÇÃO CORPORAL -->
+
+    <section class="card evolucao-secao">
+
+      <h2>Composição corporal</h2>
+
+      <p class="evolucao-descricao">
+        Visualize o percentual de gordura
+        e a massa corporal estimada.
+      </p>
+
+      <label for="tipoComposicao">
+        Parâmetro
+      </label>
+
+      <select id="tipoComposicao">
+
+        <option value="percentualGordura">
+          Percentual de gordura (%)
+        </option>
+
+        <option value="massaGorda">
+          Massa gorda (kg)
+        </option>
+
+        <option value="massaMagra">
+          Massa magra (kg)
+        </option>
+
+      </select>
+
+      <div class="evolucao-grafico">
+        <canvas id="graficoComposicao"></canvas>
+      </div>
+
+    </section>
+
+    <!-- GRÁFICO DE MEDIDAS CORPORAIS -->
+
+    <section class="card evolucao-secao">
+
+      <h2>Medidas corporais</h2>
+
+      <p class="evolucao-descricao">
+        Selecione uma região corporal para
+        acompanhar sua evolução em centímetros.
+      </p>
+
+      <label for="tipoMedida">
+        Medida corporal
+      </label>
+
+      <select id="tipoMedida">
+
+        <option value="bracoDireito">
+          Braço direito
+        </option>
+
+        <option value="bracoEsquerdo">
+          Braço esquerdo
+        </option>
+
+        <option value="coxaDireita">
+          Coxa direita
+        </option>
+
+        <option value="coxaEsquerda">
+          Coxa esquerda
+        </option>
+
+        <option value="panturrilhaDireita">
+          Panturrilha direita
+        </option>
+
+        <option value="panturrilhaEsquerda">
+          Panturrilha esquerda
+        </option>
+
+        <option value="ombros">
+          Ombros
+        </option>
+
+        <option value="peitoral">
+          Peitoral
+        </option>
+
+        <option value="pescoco">
+          Pescoço
+        </option>
+
+        <option value="abdomen">
+          Abdômen
+        </option>
+
+        <option value="cintura">
+          Cintura
+        </option>
+
+        <option value="gluteos">
+          Glúteos
+        </option>
+
+      </select>
+
+      <div class="evolucao-grafico">
+        <canvas id="graficoMedidas"></canvas>
+      </div>
+
+      <p class="evolucao-observacao">
+        As medidas são apresentadas conforme
+        os registros realizados pelo personal.
+        Avaliações sem a medida selecionada
+        não serão consideradas naquele ponto.
+      </p>
+
+    </section>
+
+    <!-- MENSAGEM DE STATUS -->
+
+    <section class="card evolucao-secao">
+
+      <p
+        id="mensagemEvolucao"
+        class="evolucao-descricao"
+        role="status"
+        aria-live="polite"
+      >
+        Carregando avaliações...
+      </p>
+
+    </section>
+
+  </main>
+
+  <!-- SCRIPT PRINCIPAL -->
+
+  <script
+    type="module"
+    src="evolucao.js"
+  ></script>
+
+</body>
+
+</html>
