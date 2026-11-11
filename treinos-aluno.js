@@ -652,6 +652,22 @@ async function registrarPresenca(
     await runTransaction(db, async tx => {
       const snap = await tx.get(ref);
 
+
+const alunoSnap = await tx.get(
+  doc(db, "usuarios", alunoAtual.uid)
+);
+
+if (
+  !alunoSnap.exists() ||
+  alunoSnap.data().matriculaCancelada === true
+) {
+  throw new Error(
+    "A matrícula está cancelada. " +
+    "O histórico continua disponível para consulta."
+  );
+}
+
+
       if (!snap.exists()) {
         throw new Error(
           "Agendamento não encontrado."

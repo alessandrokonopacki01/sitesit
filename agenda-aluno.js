@@ -736,6 +736,23 @@ $("btnSolicitarTodos").onclick = async () => {
     await runTransaction(db, async tx => {
       const documentos = [];
 
+
+const alunoSnap = await tx.get(
+  doc(db, "usuarios", usuarioAtual.uid)
+);
+
+if (
+  !alunoSnap.exists() ||
+  alunoSnap.data().matriculaCancelada === true ||
+  alunoSnap.data().personalId !== dadosAluno.personalId
+) {
+  throw new Error(
+    "Sua matrícula está cancelada. " +
+    "Novos agendamentos não são permitidos."
+  );
+}
+
+
       // Todas as leituras antes das alterações.
       for (const h of itens) {
         const ref = doc(db, "agenda", h.id);
