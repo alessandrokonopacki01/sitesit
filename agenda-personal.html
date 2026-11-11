@@ -3,14 +3,16 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <title>Agenda do Personal | FitCoach</title>
+  <title>Agenda Inteligente | FitCoach</title>
 
   <link rel="stylesheet" href="aluno.css">
   <link rel="stylesheet" href="agenda.css">
-</head>
+  </head>
 
 <body>
   <main class="app">
@@ -18,7 +20,7 @@
     <header class="topo">
       <div>
         <p>Área do Personal</p>
-        <h1>Agenda</h1>
+        <h1>Agenda Inteligente</h1>
       </div>
 
       <button onclick="voltar()" class="btn-sair">
@@ -26,34 +28,257 @@
       </button>
     </header>
 
+    <!-- NOVO HORÁRIO INDIVIDUAL -->
+
     <section class="card">
-      <h2>Novo horário</h2>
+      <h2>Cadastrar horário individual</h2>
 
       <form id="formHorario" class="agenda-form">
-
         <label for="dataHorario">Data</label>
-        <input type="date" id="dataHorario" required>
+        <input
+          type="date"
+          id="dataHorario"
+          required
+        >
 
-        <label for="horaHorario">Hora</label>
-        <input type="time" id="horaHorario" required>
+        <label for="horaHorario">Horário</label>
+        <input
+          type="time"
+          id="horaHorario"
+          required
+        >
 
         <button type="submit">
           Criar horário
+        </button>
+      </form>
+    </section>
+
+    <!-- GERADOR MENSAL -->
+
+    <section class="card agenda-secao">
+      <h2>Gerar agenda mensal</h2>
+
+      <p class="agenda-ajuda">
+        Configure os dias e os horários de atendimento.
+        O FitCoach criará automaticamente as vagas,
+        respeitando os bloqueios cadastrados.
+      </p>
+
+      <form id="formAgendaMensal">
+
+        <label for="mesAgenda">Mês</label>
+        <input type="month" id="mesAgenda" required>
+
+        <h3>Dias de atendimento</h3>
+
+        <div class="dias-semana">
+          <label><input type="checkbox" value="1" checked> Seg</label>
+          <label><input type="checkbox" value="2" checked> Ter</label>
+          <label><input type="checkbox" value="3" checked> Qua</label>
+          <label><input type="checkbox" value="4" checked> Qui</label>
+          <label><input type="checkbox" value="5" checked> Sex</label>
+          <label><input type="checkbox" value="6"> Sáb</label>
+          <label><input type="checkbox" value="0"> Dom</label>
+        </div>
+
+        <label for="inicioExpediente">
+          Início do expediente
+        </label>
+        <input
+          type="time"
+          id="inicioExpediente"
+          value="07:00"
+          required
+        >
+
+        <label for="fimExpediente">
+          Fim do expediente
+        </label>
+        <input
+          type="time"
+          id="fimExpediente"
+          value="18:00"
+          required
+        >
+
+        <label for="duracaoAtendimento">
+          Duração do atendimento
+        </label>
+
+        <select id="duracaoAtendimento">
+          <option value="30">30 minutos</option>
+          <option value="45">45 minutos</option>
+          <option value="60" selected>60 minutos</option>
+          <option value="90">90 minutos</option>
+          <option value="120">120 minutos</option>
+        </select>
+
+        <button type="submit" id="btnGerarAgenda">
+          Gerar agenda do mês
+        </button>
+      </form>
+
+      <div id="resultadoGeracao" role="status"></div>
+    </section>
+
+    <!-- BLOQUEIOS -->
+
+    <section class="card agenda-secao">
+      <h2>Gerenciar bloqueios</h2>
+
+      <p class="agenda-ajuda">
+        Cadastre períodos em que você não poderá
+        realizar atendimentos.
+      </p>
+
+      <form id="formBloqueio">
+
+        <label for="tipoBloqueio">
+          Tipo de bloqueio
+        </label>
+
+        <select id="tipoBloqueio">
+          <option value="fixo">
+            Fixo — repetir semanalmente
+          </option>
+
+          <option value="especifico">
+            Data e horário específicos
+          </option>
+
+          <option value="diaInteiro">
+            Dia inteiro ou período de férias
+          </option>
+        </select>
+
+        <!-- BLOQUEIO FIXO -->
+
+        <div id="camposBloqueioFixo">
+
+          <h3>Dias da semana</h3>
+
+          <div class="dias-semana">
+            <label><input type="checkbox" value="1"> Seg</label>
+            <label><input type="checkbox" value="2"> Ter</label>
+            <label><input type="checkbox" value="3"> Qua</label>
+            <label><input type="checkbox" value="4"> Qui</label>
+            <label><input type="checkbox" value="5"> Sex</label>
+            <label><input type="checkbox" value="6"> Sáb</label>
+            <label><input type="checkbox" value="0"> Dom</label>
+          </div>
+
+          <label for="inicioFixo">Das</label>
+          <input
+            type="time"
+            id="inicioFixo"
+            value="12:00"
+          >
+
+          <label for="fimFixo">Até</label>
+          <input
+            type="time"
+            id="fimFixo"
+            value="13:30"
+          >
+        </div>
+
+        <!-- BLOQUEIO ESPECÍFICO -->
+
+        <div id="camposBloqueioEspecifico" hidden>
+
+          <label for="dataBloqueio">Data</label>
+          <input
+            type="date"
+            id="dataBloqueio"
+          >
+
+          <label for="inicioEspecifico">Das</label>
+          <input
+            type="time"
+            id="inicioEspecifico"
+          >
+
+          <label for="fimEspecifico">Até</label>
+          <input
+            type="time"
+            id="fimEspecifico"
+          >
+        </div>
+
+        <!-- DIA INTEIRO OU FÉRIAS -->
+
+        <div id="camposDiaInteiro" hidden>
+
+          <label for="dataInicioBloqueio">
+            Data inicial
+          </label>
+          <input
+            type="date"
+            id="dataInicioBloqueio"
+          >
+
+          <label for="dataFimBloqueio">
+            Data final
+          </label>
+          <input
+            type="date"
+            id="dataFimBloqueio"
+          >
+
+          <p class="agenda-ajuda">
+            Para bloquear apenas um dia,
+            informe a mesma data nos dois campos.
+          </p>
+        </div>
+
+        <label for="motivoBloqueio">
+          Motivo do bloqueio
+        </label>
+
+        <select id="motivoBloqueio">
+          <option value="Almoço">Almoço</option>
+          <option value="Outra atividade">Outra atividade</option>
+          <option value="Compromisso pessoal">
+            Compromisso pessoal
+          </option>
+          <option value="Férias">Férias</option>
+          <option value="Feriado">Feriado</option>
+          <option value="Indisponibilidade">
+            Indisponibilidade
+          </option>
+        </select>
+
+        <button type="submit" id="btnSalvarBloqueio">
+          Adicionar bloqueio
         </button>
 
       </form>
     </section>
 
+    <!-- BLOQUEIOS CADASTRADOS -->
+
+    <section class="card agenda-secao">
+      <h2>Bloqueios cadastrados</h2>
+
+      <div id="listaBloqueios" class="agenda-lista">
+        <p>Carregando bloqueios...</p>
+      </div>
+    </section>
+
+    <!-- AGENDA EXISTENTE -->
+
     <section class="card agenda-secao">
       <h2>Minha agenda</h2>
 
       <div id="listaAgenda" class="agenda-lista">
-        <p>Carregando...</p>
+        <p>Carregando horários...</p>
       </div>
     </section>
 
   </main>
 
   <script type="module" src="agenda-personal.js"></script>
+  
 </body>
 </html>

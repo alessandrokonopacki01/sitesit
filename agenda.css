@@ -1,76 +1,431 @@
 
+/* ==========================================
+   FITCOACH — AGENDA INTELIGENTE
+   ========================================== */
+
+/* ESTRUTURA DAS SEÇÕES */
+
 .agenda-secao {
   margin-top: 22px;
 }
 
-.agenda-lista {
+.agenda-secao h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.agenda-secao h3 {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 20px 0 12px;
+}
+
+.agenda-ajuda {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 10px 0 20px;
+}
+
+/* ==========================================
+   FORMULÁRIOS
+   ========================================== */
+
+.agenda-form,
+#formAgendaMensal,
+#formBloqueio {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agenda-form label,
+#formAgendaMensal > label,
+#formBloqueio label {
+  display: block;
+  color: #bbb;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.agenda-form input,
+#formAgendaMensal input[type="month"],
+#formAgendaMensal input[type="time"],
+#formAgendaMensal select,
+#formBloqueio input[type="date"],
+#formBloqueio input[type="time"],
+#formBloqueio select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+
+  padding: 12px 14px;
+  margin: 0;
+
+  background: #18181e;
+  color: #fff;
+
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+}
+
+.agenda-form input:focus,
+#formAgendaMensal input:focus,
+#formAgendaMensal select:focus,
+#formBloqueio input:focus,
+#formBloqueio select:focus {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.1);
+}
+
+/* ==========================================
+   DIAS DA SEMANA
+   ========================================== */
+
+.dias-semana {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+  margin: 10px 0 18px;
+}
+
+.dias-semana label {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 4px;
+
+  background: #18181e;
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  color: #bbb;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dias-semana label:hover {
+  border-color: #4ade80;
+}
+
+.dias-semana label:has(input:checked) {
+  background: #153d28;
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+.dias-semana input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+
+  accent-color: #22c55e;
+  cursor: pointer;
+}
+
+/* ==========================================
+   FORMULÁRIO DE BLOQUEIOS
+   ========================================== */
+
+#camposBloqueioFixo,
+#camposBloqueioEspecifico,
+#camposDiaInteiro {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+
+  padding: 16px;
+  margin: 12px 0;
+}
+
+#camposBloqueioFixo h3 {
+  margin-top: 0;
+}
+
+#camposBloqueioEspecifico input,
+#camposDiaInteiro input,
+#camposBloqueioFixo input[type="time"] {
+  margin-bottom: 12px;
+}
+
+/* ==========================================
+   BOTÕES
+   ========================================== */
+
+#formAgendaMensal button,
+#formBloqueio button,
+.agenda-form button {
+  width: 100%;
+  min-height: 46px;
+
   margin-top: 16px;
+  padding: 12px 18px;
+
+  background: #22c55e;
+  color: #08130c;
+
+  border: none;
+  border-radius: 11px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+#formAgendaMensal button:hover,
+#formBloqueio button:hover,
+.agenda-form button:hover {
+  background: #4ade80;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* ==========================================
+   RESULTADO DA GERAÇÃO MENSAL
+   ========================================== */
+
+#resultadoGeracao {
+  color: #4ade80;
+  font-size: 13px;
+  line-height: 1.6;
+
+  margin-top: 15px;
+  overflow-wrap: anywhere;
+}
+
+#resultadoGeracao:not(:empty) {
+  background: #153d28;
+  border: 1px solid #256b43;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+/* ==========================================
+   LISTAS DE HORÁRIOS E BLOQUEIOS
+   ========================================== */
+
+.agenda-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-top: 18px;
 }
 
 .agenda-item {
   background: #101014;
   border: 1px solid #30303a;
-  padding: 14px;
   border-radius: 12px;
-  margin-bottom: 12px;
+
+  padding: 16px;
+  min-width: 0;
 }
 
 .agenda-item strong {
   display: block;
-  font-size: 15px;
-  margin-bottom: 8px;
-}
-
-.agenda-status,
-.agenda-detalhes {
-  color: #bbb;
-  font-size: 13px;
-  text-align: left;
-  margin: 6px 0;
-}
-
-.agenda-acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.agenda-item button {
-  margin-top: 10px;
-}
-
-.agenda-acoes button {
-  margin-top: 0;
-  flex: 1;
-}
-
-.agenda-btn-secundario {
-  background: #34343d;
   color: #fff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  margin-bottom: 10px;
 }
 
-.agenda-form {
-  margin-top: 14px;
-}
-
-.agenda-form label {
-  display: block;
+.agenda-status {
+  color: #4ade80;
   font-size: 13px;
-  color: #bbb;
-  margin: 0 0 6px;
+  font-weight: 600;
+
+  margin: 7px 0;
+  text-align: left;
 }
 
-.agenda-form button {
-  width: 100%;
+.agenda-detalhes {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.6;
+
+  margin: 8px 0;
+  text-align: left;
+
+  overflow-wrap: anywhere;
 }
 
 .agenda-vazio {
   color: #aaa;
   font-size: 14px;
+  text-align: center;
+
+  padding: 20px;
 }
 
-button:disabled {
-  opacity: .55;
-  cursor: wait;
+/* ==========================================
+   AÇÕES DOS AGENDAMENTOS
+   ========================================== */
+
+.agenda-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+
+  margin-top: 15px;
+}
+
+.agenda-acoes button {
+  flex: 1;
+  min-width: 110px;
+  min-height: 42px;
+
+  padding: 10px 12px;
+  margin: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #22c55e;
+  color: #08130c;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.agenda-acoes button:hover {
+  opacity: 0.85;
+}
+
+/* ==========================================
+   BOTÕES SECUNDÁRIOS
+   ========================================== */
+
+.agenda-btn-secundario,
+.agenda-item > .agenda-btn-secundario {
+  background: #34343d !important;
+  color: #fff !important;
+}
+
+.agenda-item > button {
+  min-height: 42px;
+  padding: 10px 14px;
+  margin-top: 12px;
+
+  border-radius: 9px;
+  border: none;
+
+  cursor: pointer;
+}
+
+/* ==========================================
+   AGENDA DO ALUNO
+   ========================================== */
+
+#listaHorarios .agenda-item,
+#listaMeusHorarios .agenda-item {
+  margin-bottom: 0;
+}
+
+#listaHorarios .agenda-item > button,
+#listaMeusHorarios .agenda-item > button {
+  width: 100%;
+}
+
+#listaHorarios .agenda-item > button:not(.agenda-btn-secundario) {
+  background: #22c55e;
+  color: #08130c;
+  font-weight: 700;
+}
+
+/* ==========================================
+   COMPATIBILIDADE COM HIDDEN
+   ========================================== */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (min-width: 768px) {
+
+  .agenda-item {
+    padding: 18px;
+  }
+
+  .agenda-lista {
+    gap: 14px;
+  }
+
+  .dias-semana {
+    gap: 10px;
+  }
+
+  .dias-semana label {
+    padding: 15px 8px;
+  }
+
+  #camposBloqueioFixo,
+  #camposBloqueioEspecifico,
+  #camposDiaInteiro {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .agenda-secao h2 {
+    font-size: 18px;
+  }
+
+  .dias-semana {
+    gap: 4px;
+  }
+
+  .dias-semana label {
+    padding: 10px 2px;
+    font-size: 10px;
+    gap: 8px;
+  }
+
+  .dias-semana input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+  }
+
+  .agenda-item {
+    padding: 13px;
+  }
+
+  .agenda-acoes {
+    flex-direction: column;
+  }
+
+  .agenda-acoes button {
+    width: 100%;
+  }
 }
