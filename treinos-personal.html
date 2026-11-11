@@ -1,64 +1,447 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Criar Treino</title>
-  <link rel="stylesheet" href="aluno.css">
-</head>
-<body>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-  <main class="app">
+  <title>Fichas de treino | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+
+  <style>
+    .fit-fichas {
+      max-width: 850px;
+    }
+
+    .fit-fichas .card {
+      margin-bottom: 20px;
+    }
+
+    .fit-fichas h2 {
+      font-size: 19px;
+      margin-bottom: 12px;
+    }
+
+    .fit-ajuda {
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .fit-campo {
+      margin-bottom: 17px;
+    }
+
+    .fit-campo label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ccc;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .fit-fichas input,
+    .fit-fichas select,
+    .fit-fichas textarea {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #393943;
+      border-radius: 10px;
+      background: #111116;
+      color: #fff;
+      font-size: 14px;
+      margin: 0;
+      outline: none;
+    }
+
+    .fit-fichas input:focus,
+    .fit-fichas select:focus,
+    .fit-fichas textarea:focus {
+      border-color: #22c55e;
+    }
+
+    .fit-fichas textarea {
+      min-height: 75px;
+    }
+
+    .fit-letras {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .fit-letras button {
+      min-width: 0;
+      background: #121218;
+      color: #ccc;
+      border: 1px solid #393943;
+      padding: 13px 5px;
+    }
+
+    .fit-letras button.ativo {
+      background: #153c27;
+      color: #4ade80;
+      border-color: #22c55e;
+    }
+
+    .fit-grupos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .fit-grupo {
+      background: #111116;
+      color: #ccc;
+      border: 1px solid #393943;
+      font-size: 12px;
+      padding: 10px 12px;
+    }
+
+    .fit-grupo.ativo {
+      background: #153c27;
+      color: #4ade80;
+      border-color: #22c55e;
+    }
+
+    .fit-resumo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #111116;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    .fit-letra-destaque {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 55px;
+      height: 55px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: #153c27;
+      color: #4ade80;
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .fit-resumo p {
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 5px;
+      text-align: left;
+    }
+
+    .fit-exercicio,
+    .fit-item-ficha {
+      background: #111116;
+      border: 1px solid #30303a;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+
+    .fit-exercicio-topo,
+    .fit-item-topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .fit-exercicio strong,
+    .fit-item-ficha strong {
+      font-size: 14px;
+    }
+
+    .fit-exercicio p,
+    .fit-item-ficha p {
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 5px;
+      text-align: left;
+    }
+
+    .fit-btn-adicionar {
+      flex-shrink: 0;
+      background: #153c27;
+      color: #4ade80;
+      border: 1px solid #22c55e;
+      font-size: 12px;
+    }
+
+    .fit-btn-adicionar:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+    .fit-config-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .fit-config-grid .fit-campo {
+      margin: 0;
+    }
+
+    .fit-observacao {
+      margin-top: 12px;
+    }
+
+    .fit-acoes-item {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .fit-acoes-item button {
+      background: #33333d;
+      color: #fff;
+      font-size: 12px;
+      padding: 9px 12px;
+    }
+
+    .fit-acoes-item .fit-remover {
+      background: #442024;
+      color: #fca5a5;
+    }
+
+    .fit-btn-salvar {
+      width: 100%;
+      background: #22c55e;
+      color: #08130c;
+      padding: 15px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .fit-btn-secundario {
+      background: #33333d;
+      color: #fff;
+    }
+
+    .fit-vazio {
+      color: #aaa;
+      font-size: 13px;
+      padding: 15px 0;
+      text-align: left;
+    }
+
+    .fit-contador {
+      color: #4ade80;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .fit-cabecalho-linha {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .fit-cabecalho-linha h2 {
+      margin: 0;
+    }
+
+    .fit-aviso {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #4ade80;
+      margin-top: 12px;
+    }
+
+    .fit-aviso.erro {
+      color: #fca5a5;
+    }
+
+    .fit-fichas button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    @media (max-width: 480px) {
+      .fit-config-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .fit-config-grid .fit-campo:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .fit-exercicio-topo {
+        align-items: flex-start;
+      }
+
+      .fit-btn-adicionar {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app fit-fichas">
 
     <header class="topo">
       <div>
         <p>Área do Personal</p>
-        <h1>Criar Treino</h1>
+        <h1>Fichas de treino</h1>
       </div>
-      <button onclick="voltar()" class="btn-sair">Voltar</button>
+
+      <button
+        id="btnVoltar"
+        type="button"
+        class="btn-sair"
+      >
+        Voltar
+      </button>
     </header>
 
     <section class="card">
-      <h2>Nova ficha</h2>
 
-      <select id="alunoSelect">
-        <option value="">Selecione o aluno</option>
-      </select>
+      <h2>Montar ficha</h2>
 
-      <input type="text" id="tituloTreino" placeholder="Ex: Treino A - Peito e Tríceps">
+      <p class="fit-ajuda">
+        Escolha o aluno, a classificação do treino
+        e os grupos musculares.
+      </p>
 
-      <hr style="margin: 20px 0; border-color: #333;">
+      <div class="fit-campo">
+        <label for="alunoSelect">Aluno</label>
 
-      <h3>Adicionar exercício</h3>
-
-      <select id="exercicioSelect">
-        <option value="">Selecione um exercício</option>
-      </select>
-
-      <input type="number" id="series" placeholder="Séries. Ex: 4">
-      <input type="text" id="repeticoes" placeholder="Repetições. Ex: 8 a 12">
-      <input type="text" id="carga" placeholder="Carga. Ex: 40 kg">
-      <input type="text" id="descanso" placeholder="Descanso. Ex: 60s">
-
-      <textarea id="observacaoExercicio" placeholder="Observação do exercício"></textarea>
-
-      <button onclick="adicionarExercicioAoTreino()">Adicionar exercício</button>
-    </section>
-
-    <section class="card" style="margin-top: 25px;">
-      <h2>Exercícios da ficha</h2>
-      <div id="listaFicha" style="margin-top: 15px;">
-        <p>Nenhum exercício adicionado.</p>
+        <select id="alunoSelect">
+          <option value="">Selecione o aluno</option>
+        </select>
       </div>
 
-      <button onclick="salvarTreino()" style="margin-top: 15px;">
-        Salvar ficha para o aluno
+      <div class="fit-campo">
+        <label>Classificação</label>
+
+        <div class="fit-letras" id="seletorLetras">
+          <button type="button"
+                  data-letra="A" class="ativo">A</button>
+          <button type="button"
+                  data-letra="B">B</button>
+          <button type="button"
+                  data-letra="C">C</button>
+          <button type="button"
+                  data-letra="D">D</button>
+          <button type="button"
+                  data-letra="E">E</button>
+        </div>
+      </div>
+
+      <div class="fit-campo">
+        <label>Grupos musculares</label>
+
+        <div id="listaGrupos" class="fit-grupos">
+          <p class="fit-vazio">
+            Carregando biblioteca...
+          </p>
+        </div>
+      </div>
+
+      <div class="fit-resumo">
+        <div class="fit-letra-destaque"
+             id="letraResumo">A</div>
+
+        <div>
+          <strong id="tituloResumo">Treino A</strong>
+
+          <p id="gruposResumo">
+            Selecione os grupos musculares
+          </p>
+        </div>
+      </div>
+
+      <p id="avisoFichaExistente"
+         class="fit-aviso"
+         role="status"></p>
+
+    </section>
+
+    <section class="card">
+
+      <h2>Biblioteca de exercícios</h2>
+
+      <p class="fit-ajuda">
+        Os exercícios dos grupos selecionados
+        aparecem automaticamente. Escolha os
+        que farão parte da ficha.
+      </p>
+
+      <div class="fit-campo">
+        <label for="buscaExercicio">
+          Pesquisar exercício
+        </label>
+
+        <input
+          id="buscaExercicio"
+          type="search"
+          placeholder="Pesquisar pelo nome"
+        >
+      </div>
+
+      <div id="listaExercicios">
+        <p class="fit-vazio">
+          Selecione um grupo muscular.
+        </p>
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <div class="fit-cabecalho-linha">
+        <h2>Exercícios da ficha</h2>
+
+        <span id="contadorExercicios"
+              class="fit-contador">
+          0 exercícios
+        </span>
+      </div>
+
+      <p class="fit-ajuda">
+        Configure séries, repetições, descanso
+        e observações de cada exercício.
+      </p>
+
+      <div id="listaFicha">
+        <p class="fit-vazio">
+          Nenhum exercício selecionado.
+        </p>
+      </div>
+
+      <button id="btnSalvarTreino"
+              type="button"
+              class="fit-btn-salvar">
+        Salvar ficha
       </button>
+
+      <p id="mensagemFicha"
+         class="fit-aviso"
+         role="status"
+         aria-live="polite"></p>
+
     </section>
 
   </main>
 
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="treinos-personal.js"></script>
+  <script
+    type="module"
+    src="treinos-personal.js"
+  ></script>
 </body>
 </html>

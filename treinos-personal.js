@@ -1,3 +1,4 @@
+
 import { auth, db } from "./firebase.js";
 
 import {
@@ -9,192 +10,869 @@ import {
   query,
   where,
   getDocs,
-  addDoc,
+  doc,
+  getDoc,
+  runTransaction,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// ==========================================
+// CONFIGURAÇÕES
+// ==========================================
+
+const $ = id => document.getElementById(id);
+const LETRAS = ["A", "B", "C", "D", "E"];
+
+// ==========================================
+// ESTADO
+// ==========================================
+
 let personalAtual = null;
-let exerciciosGaleria = [];
+let alunos = [];
+let biblioteca = [];
+let fichasExistentes = [];
+
+let letraAtual = "A";
+let gruposSelecionados = new Set();
 let fichaAtual = [];
+let fichaEmEdicao = null;
 
-window.voltar = function () {
-  window.location.href = "personal.html";
-};
+let salvando = false;
+let carregando = false;
+let alterado = false;
+let versaoAuth = 0;
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
+// ==========================================
+// AUXILIARES
+// ==========================================
+
+function el(tag, texto = "", classe = "") {
+  const elemento = document.createElement(tag);
+  elemento.textContent = String(texto);
+
+  if (classe) elemento.className = classe;
+
+  return elemento;
+}
+
+function normalizar(valor) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function gruposDisponiveis() {
+  return [...new Set(
+    biblioteca
+      .map(ex => String(ex.grupo || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function gruposEscolhidos() {
+  return gruposDisponiveis().filter(grupo =>
+    gruposSelecionados.has(normalizar(grupo))
+  );
+}
+
+function tituloTreino() {
+  const grupos = gruposEscolhidos();
+
+  return grupos.length
+    ? `Treino ${letraAtual} - ${grupos.join(" e ")}`
+    : `Treino ${letraAtual}`;
+}
+
+function letraDaFicha(ficha) {
+  if (LETRAS.includes(ficha.letra)) {
+    return ficha.letra;
   }
 
-  personalAtual = user;
+  const titulo = String(ficha.titulo || "");
+  const resultado = titulo.match(
+    /^treino\s+([ABCDE])(?:\b|[\s\-–:])/i
+  );
 
-  await carregarAlunos();
-  await carregarExercicios();
+  return resultado ? resultado[1].toUpperCase() : null;
+}
+
+function gruposDaFicha(ficha) {
+  if (Array.isArray(ficha.gruposMusculares)) {
+    return ficha.gruposMusculares;
+  }
+
+  // Compatibilidade com fichas antigas:
+  // recupera os grupos presentes nos exercícios.
+  const grupos = new Set(
+    (ficha.exercicios || [])
+      .map(ex => normalizar(ex.grupo))
+      .filter(Boolean)
+  );
+
+  return gruposDisponiveis().filter(grupo =>
+    grupos.has(normalizar(grupo))
+  );
+}
+
+function alunoSelecionado() {
+  return $("alunoSelect").value;
+}
+
+function fichaCorrespondente() {
+  const alunoId = alunoSelecionado();
+
+  if (!alunoId) return null;
+
+  return fichasExistentes.find(ficha =>
+    ficha.alunoId === alunoId &&
+    ficha.status === "ativo" &&
+    letraDaFicha(ficha) === letraAtual
+  ) || null;
+}
+
+function avisar(texto, erro = false) {
+  const aviso = $("mensagemFicha");
+
+  aviso.textContent = texto;
+  aviso.classList.toggle("erro", erro);
+}
+
+function confirmarDescarte() {
+  return !alterado || confirm(
+    "Existem alterações não salvas. Deseja descartá-las?"
+  );
+}
+
+function marcarAlteracao() {
+  alterado = true;
+}
+
+// ==========================================
+// NAVEGAÇÃO
+// ==========================================
+
+$("btnVoltar").addEventListener("click", () => {
+  if (!confirmarDescarte()) return;
+  location.href = "personal.html";
 });
 
-async function carregarAlunos() {
-  const q = query(
-    collection(db, "usuarios"),
-    where("tipo", "==", "aluno"),
-    where("personalId", "==", personalAtual.uid)
-  );
+// ==========================================
+// AUTENTICAÇÃO
+// ==========================================
 
-  const resultado = await getDocs(q);
-  const select = document.getElementById("alunoSelect");
+onAuthStateChanged(auth, async usuario => {
+  const versao = ++versaoAuth;
 
-  resultado.forEach((docAluno) => {
-    const aluno = docAluno.data();
+  personalAtual = null;
 
-    const option = document.createElement("option");
-    option.value = docAluno.id;
-    option.textContent = aluno.nome;
-
-    select.appendChild(option);
-  });
-}
-
-async function carregarExercicios() {
-  const q = query(
-    collection(db, "exercicios"),
-    where("personalId", "==", personalAtual.uid)
-  );
-
-  const resultado = await getDocs(q);
-  const select = document.getElementById("exercicioSelect");
-
-  exerciciosGaleria = [];
-
-  resultado.forEach((docExercicio) => {
-    const exercicio = {
-      id: docExercicio.id,
-      ...docExercicio.data()
-    };
-
-    exerciciosGaleria.push(exercicio);
-
-    const option = document.createElement("option");
-    option.value = exercicio.id;
-    option.textContent = `${exercicio.nome} - ${exercicio.grupo}`;
-
-    select.appendChild(option);
-  });
-}
-
-window.adicionarExercicioAoTreino = function () {
-  const exercicioId = document.getElementById("exercicioSelect").value;
-  const series = document.getElementById("series").value;
-  const repeticoes = document.getElementById("repeticoes").value.trim();
-  const carga = document.getElementById("carga").value.trim();
-  const descanso = document.getElementById("descanso").value.trim();
-  const observacao = document.getElementById("observacaoExercicio").value.trim();
-
-  if (!exercicioId || !series || !repeticoes) {
-    alert("Selecione o exercício e preencha séries e repetições.");
+  if (!usuario) {
+    location.replace("index.html");
     return;
   }
 
-  const exercicioBase = exerciciosGaleria.find(ex => ex.id === exercicioId);
+  try {
+    const perfil = await getDoc(
+      doc(db, "usuarios", usuario.uid)
+    );
 
-  if (!exercicioBase) {
-    alert("Exercício não encontrado.");
+    if (versao !== versaoAuth) return;
+
+    if (
+      !perfil.exists() ||
+      perfil.data().tipo !== "personal"
+    ) {
+      location.replace("index.html");
+      return;
+    }
+
+    personalAtual = usuario;
+
+    carregando = true;
+    avisar("Carregando dados...");
+
+    await carregarDados();
+
+    if (versao !== versaoAuth) return;
+
+    carregando = false;
+    avisar("");
+
+    renderizarTudo();
+
+  } catch (erro) {
+    console.error(erro);
+    carregando = false;
+    avisar("Erro ao carregar os dados.", true);
+  }
+});
+
+// ==========================================
+// CARREGAR DADOS
+// ==========================================
+
+async function carregarDados() {
+  const uid = personalAtual.uid;
+
+  const [resultadoAlunos, resultadoExercicios, resultadoFichas] =
+    await Promise.all([
+      getDocs(query(
+        collection(db, "usuarios"),
+        where("tipo", "==", "aluno"),
+        where("personalId", "==", uid)
+      )),
+
+      getDocs(query(
+        collection(db, "exercicios"),
+        where("personalId", "==", uid)
+      )),
+
+      getDocs(query(
+        collection(db, "treinos"),
+        where("personalId", "==", uid)
+      ))
+    ]);
+
+  alunos = resultadoAlunos.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  })).sort((a, b) =>
+    (a.nome || "").localeCompare(b.nome || "", "pt-BR")
+  );
+
+  biblioteca = resultadoExercicios.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  })).sort((a, b) =>
+    (a.nome || "").localeCompare(b.nome || "", "pt-BR")
+  );
+
+  fichasExistentes = resultadoFichas.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
+
+  const select = $("alunoSelect");
+
+  select.replaceChildren(
+    new Option("Selecione o aluno", "")
+  );
+
+  alunos.forEach(aluno => {
+    select.add(
+      new Option(aluno.nome || "Aluno", aluno.id)
+    );
+  });
+}
+
+// ==========================================
+// SELEÇÃO DE ALUNO E LETRA
+// ==========================================
+
+$("alunoSelect").addEventListener("change", e => {
+  if (!confirmarDescarte()) {
+    e.target.value = e.target.dataset.anterior || "";
+    return;
+  }
+
+  e.target.dataset.anterior = e.target.value;
+  carregarFichaSelecionada();
+});
+
+document.querySelectorAll(
+  "#seletorLetras [data-letra]"
+).forEach(botao => {
+  botao.addEventListener("click", () => {
+    const novaLetra = botao.dataset.letra;
+
+    if (novaLetra === letraAtual) return;
+    if (!confirmarDescarte()) return;
+
+    letraAtual = novaLetra;
+
+    carregarFichaSelecionada();
+  });
+});
+
+function carregarFichaSelecionada() {
+  gruposSelecionados.clear();
+  fichaAtual = [];
+  fichaEmEdicao = null;
+  alterado = false;
+
+  const existente = fichaCorrespondente();
+
+  if (existente) {
+    fichaEmEdicao = existente.id;
+
+    gruposDaFicha(existente).forEach(grupo => {
+      gruposSelecionados.add(normalizar(grupo));
+    });
+
+    fichaAtual = (existente.exercicios || []).map(ex => ({
+      ...ex,
+      series: Number(ex.series) || 3,
+      repeticoes: String(ex.repeticoes || "10"),
+      descanso: ex.descanso || "60s",
+      observacao: ex.observacao || ""
+    }));
+  }
+
+  avisar("");
+  renderizarTudo();
+}
+
+// ==========================================
+// RESUMO
+// ==========================================
+
+function renderizarResumo() {
+  document.querySelectorAll(
+    "#seletorLetras [data-letra]"
+  ).forEach(botao => {
+    botao.classList.toggle(
+      "ativo",
+      botao.dataset.letra === letraAtual
+    );
+  });
+
+  $("letraResumo").textContent = letraAtual;
+  $("tituloResumo").textContent = `Treino ${letraAtual}`;
+
+  $("gruposResumo").textContent =
+    gruposEscolhidos().join(" e ") ||
+    "Selecione os grupos musculares";
+
+  $("avisoFichaExistente").textContent = fichaEmEdicao
+    ? "Ficha existente carregada. As alterações atualizarão esta ficha."
+    : "Nova ficha de treino.";
+}
+
+// ==========================================
+// GRUPOS MUSCULARES
+// ==========================================
+
+function renderizarGrupos() {
+  const lista = $("listaGrupos");
+  lista.replaceChildren();
+
+  const grupos = gruposDisponiveis();
+
+  if (!grupos.length) {
+    lista.appendChild(el(
+      "p",
+      "Nenhum exercício cadastrado na biblioteca.",
+      "fit-vazio"
+    ));
+    return;
+  }
+
+  grupos.forEach(grupo => {
+    const chave = normalizar(grupo);
+    const ativo = gruposSelecionados.has(chave);
+
+    const botao = el(
+      "button",
+      grupo,
+      "fit-grupo"
+    );
+
+    botao.type = "button";
+    botao.classList.toggle("ativo", ativo);
+    botao.setAttribute("aria-pressed", String(ativo));
+
+    botao.addEventListener("click", () => {
+      if (salvando) return;
+
+      if (gruposSelecionados.has(chave)) {
+        gruposSelecionados.delete(chave);
+      } else {
+        gruposSelecionados.add(chave);
+      }
+
+      // Os exercícios já adicionados não são
+      // apagados ao alterar o filtro.
+      marcarAlteracao();
+      renderizarTudo();
+    });
+
+    lista.appendChild(botao);
+  });
+}
+
+// ==========================================
+// BIBLIOTECA FILTRADA
+// ==========================================
+
+$("buscaExercicio").addEventListener(
+  "input",
+  renderizarBiblioteca
+);
+
+function renderizarBiblioteca() {
+  const lista = $("listaExercicios");
+  lista.replaceChildren();
+
+  if (!gruposSelecionados.size) {
+    lista.appendChild(el(
+      "p",
+      "Selecione pelo menos um grupo muscular.",
+      "fit-vazio"
+    ));
+    return;
+  }
+
+  const busca = normalizar($("buscaExercicio").value);
+
+  const filtrados = biblioteca.filter(ex =>
+    gruposSelecionados.has(normalizar(ex.grupo)) &&
+    normalizar(ex.nome).includes(busca)
+  );
+
+  if (!filtrados.length) {
+    lista.appendChild(el(
+      "p",
+      "Nenhum exercício encontrado nesses grupos.",
+      "fit-vazio"
+    ));
+    return;
+  }
+
+  filtrados.forEach(ex => {
+    const incluido = fichaAtual.some(item =>
+      item.exercicioId === ex.id
+    );
+
+    const card = el("article", "", "fit-exercicio");
+    const topo = el("div", "", "fit-exercicio-topo");
+    const informacoes = el("div");
+
+    informacoes.appendChild(
+      el("strong", ex.nome || "Exercício")
+    );
+
+    informacoes.appendChild(
+      el("p", ex.grupo || "")
+    );
+
+    if (ex.equipamento) {
+      informacoes.appendChild(
+        el("p", `Equipamento: ${ex.equipamento}`)
+      );
+    }
+
+    topo.appendChild(informacoes);
+
+    const adicionar = el(
+      "button",
+      incluido ? "Adicionado" : "+ Adicionar",
+      "fit-btn-adicionar"
+    );
+
+    adicionar.type = "button";
+    adicionar.disabled = incluido || salvando;
+
+    adicionar.addEventListener("click", () => {
+      adicionarExercicio(ex.id);
+    });
+
+    topo.appendChild(adicionar);
+    card.appendChild(topo);
+    lista.appendChild(card);
+  });
+}
+
+// ==========================================
+// ADICIONAR EXERCÍCIO À FICHA
+// ==========================================
+
+function adicionarExercicio(id) {
+  const base = biblioteca.find(ex => ex.id === id);
+
+  if (!base || salvando) return;
+
+  if (fichaAtual.some(ex => ex.exercicioId === id)) {
     return;
   }
 
   fichaAtual.push({
-    exercicioId: exercicioBase.id,
-    nome: exercicioBase.nome,
-    grupo: exercicioBase.grupo,
-    equipamento: exercicioBase.equipamento || "",
-    video: exercicioBase.video || "",
-    descricao: exercicioBase.descricao || "",
-    series: Number(series),
-    repeticoes,
-    carga,
-    descanso,
-    observacao
+    exercicioId: base.id,
+    nome: base.nome,
+    grupo: base.grupo || "",
+    equipamento: base.equipamento || "",
+    video: base.video || "",
+    descricao: base.descricao || "",
+    series: 3,
+    repeticoes: "10",
+    descanso: "60s",
+    observacao: ""
   });
 
-  limparCamposExercicio();
-  renderizarFicha();
-};
+  marcarAlteracao();
+  renderizarTudo();
+}
 
-function limparCamposExercicio() {
-  document.getElementById("exercicioSelect").value = "";
-  document.getElementById("series").value = "";
-  document.getElementById("repeticoes").value = "";
-  document.getElementById("carga").value = "";
-  document.getElementById("descanso").value = "";
-  document.getElementById("observacaoExercicio").value = "";
+// ==========================================
+// EDITAR EXERCÍCIOS DA FICHA
+// ==========================================
+
+function criarCampo(labelTexto, tipo, valor, atualizar) {
+  const campo = el("div", "", "fit-campo");
+
+  const label = el("label", labelTexto);
+
+  const input = document.createElement("input");
+  input.type = tipo;
+  input.value = valor;
+  input.setAttribute("aria-label", labelTexto);
+
+  if (tipo === "number") {
+    input.min = "1";
+    input.max = "50";
+    input.step = "1";
+  }
+
+  input.addEventListener("input", () => {
+    atualizar(input.value);
+    marcarAlteracao();
+  });
+
+  campo.appendChild(label);
+  campo.appendChild(input);
+
+  return campo;
 }
 
 function renderizarFicha() {
-  const lista = document.getElementById("listaFicha");
+  const lista = $("listaFicha");
+  lista.replaceChildren();
 
-  lista.innerHTML = "";
+  $("contadorExercicios").textContent =
+    `${fichaAtual.length} exercício(s)`;
 
-  if (fichaAtual.length === 0) {
-    lista.innerHTML = "<p>Nenhum exercício adicionado.</p>";
+  if (!fichaAtual.length) {
+    lista.appendChild(el(
+      "p",
+      "Nenhum exercício selecionado.",
+      "fit-vazio"
+    ));
     return;
   }
 
-  fichaAtual.forEach((exercicio, index) => {
-    const item = document.createElement("div");
-    item.style.background = "#101014";
-    item.style.padding = "14px";
-    item.style.borderRadius = "12px";
-    item.style.marginBottom = "12px";
+  fichaAtual.forEach((ex, index) => {
+    const card = el("article", "", "fit-item-ficha");
 
-    item.innerHTML = `
-      <strong>${index + 1}. ${exercicio.nome}</strong>
-      <p style="text-align:left;">Grupo: ${exercicio.grupo}</p>
-      <p style="text-align:left;">Séries: ${exercicio.series}</p>
-      <p style="text-align:left;">Repetições: ${exercicio.repeticoes}</p>
-      <p style="text-align:left;">Carga: ${exercicio.carga || "-"}</p>
-      <p style="text-align:left;">Descanso: ${exercicio.descanso || "-"}</p>
-      <p style="text-align:left;">Obs: ${exercicio.observacao || "-"}</p>
-      <button onclick="removerExercicio(${index})" style="margin-top:10px; background:#ef4444;">
-        Remover
-      </button>
-    `;
+    const topo = el("div", "", "fit-item-topo");
+    const info = el("div");
 
-    lista.appendChild(item);
+    info.appendChild(el(
+      "strong",
+      `${index + 1}. ${ex.nome}`
+    ));
+
+    info.appendChild(el("p", ex.grupo || ""));
+
+    topo.appendChild(info);
+    card.appendChild(topo);
+
+    const grid = el("div", "", "fit-config-grid");
+
+    grid.appendChild(criarCampo(
+      "Séries",
+      "number",
+      ex.series,
+      valor => ex.series = Number(valor)
+    ));
+
+    grid.appendChild(criarCampo(
+      "Repetições",
+      "text",
+      ex.repeticoes,
+      valor => ex.repeticoes = valor
+    ));
+
+    const descansoCampo = el("div", "", "fit-campo");
+    descansoCampo.appendChild(el("label", "Descanso"));
+
+    const descanso = document.createElement("select");
+    descanso.setAttribute(
+      "aria-label",
+      `Descanso de ${ex.nome}`
+    );
+
+    const opcoes = [
+      ["", "Não informado"],
+      ["30s", "30 s"],
+      ["45s", "45 s"],
+      ["60s", "60 s"],
+      ["90s", "90 s"],
+      ["120s", "120 s"],
+      ["180s", "180 s"]
+    ];
+
+    if (
+      ex.descanso &&
+      !opcoes.some(opcao => opcao[0] === ex.descanso)
+    ) {
+      opcoes.push([ex.descanso, ex.descanso]);
+    }
+
+    opcoes.forEach(([valor, texto]) => {
+      descanso.add(new Option(texto, valor));
+    });
+
+    descanso.value = ex.descanso || "";
+
+    descanso.addEventListener("change", () => {
+      ex.descanso = descanso.value;
+      marcarAlteracao();
+    });
+
+    descansoCampo.appendChild(descanso);
+    grid.appendChild(descansoCampo);
+    card.appendChild(grid);
+
+    const obsCampo = el(
+      "div",
+      "",
+      "fit-campo fit-observacao"
+    );
+
+    obsCampo.appendChild(el("label", "Observações"));
+
+    const obs = document.createElement("textarea");
+    obs.rows = 2;
+    obs.maxLength = 1000;
+    obs.value = ex.observacao || "";
+    obs.placeholder = "Orientações para o aluno";
+    obs.setAttribute(
+      "aria-label",
+      `Observações de ${ex.nome}`
+    );
+
+    obs.addEventListener("input", () => {
+      ex.observacao = obs.value;
+      marcarAlteracao();
+    });
+
+    obsCampo.appendChild(obs);
+    card.appendChild(obsCampo);
+
+    const acoes = el("div", "", "fit-acoes-item");
+
+    const subir = el("button", "↑ Subir");
+    subir.disabled = index === 0 || salvando;
+
+    subir.addEventListener("click", () => {
+      trocarPosicoes(index, index - 1);
+    });
+
+    const descer = el("button", "↓ Descer");
+    descer.disabled =
+      index === fichaAtual.length - 1 || salvando;
+
+    descer.addEventListener("click", () => {
+      trocarPosicoes(index, index + 1);
+    });
+
+    const remover = el(
+      "button",
+      "Remover",
+      "fit-remover"
+    );
+
+    remover.disabled = salvando;
+
+    remover.addEventListener("click", () => {
+      fichaAtual.splice(index, 1);
+      marcarAlteracao();
+      renderizarTudo();
+    });
+
+    acoes.append(subir, descer, remover);
+    card.appendChild(acoes);
+    lista.appendChild(card);
   });
 }
 
-window.removerExercicio = function (index) {
-  fichaAtual.splice(index, 1);
-  renderizarFicha();
-};
+function trocarPosicoes(origem, destino) {
+  if (
+    destino < 0 ||
+    destino >= fichaAtual.length ||
+    salvando
+  ) return;
 
-window.salvarTreino = async function () {
-  const alunoId = document.getElementById("alunoSelect").value;
-  const titulo = document.getElementById("tituloTreino").value.trim();
+  [fichaAtual[origem], fichaAtual[destino]] =
+    [fichaAtual[destino], fichaAtual[origem]];
 
-  if (!alunoId || !titulo) {
-    alert("Selecione o aluno e digite o título do treino.");
+  marcarAlteracao();
+  renderizarTudo();
+}
+
+// ==========================================
+// VALIDAÇÕES
+// ==========================================
+
+function validarFicha() {
+  if (!alunoSelecionado()) {
+    throw new Error("Selecione um aluno.");
+  }
+
+  if (!gruposSelecionados.size) {
+    throw new Error(
+      "Selecione pelo menos um grupo muscular."
+    );
+  }
+
+  if (!fichaAtual.length) {
+    throw new Error(
+      "Adicione pelo menos um exercício à ficha."
+    );
+  }
+
+  for (const ex of fichaAtual) {
+    if (
+      !Number.isInteger(ex.series) ||
+      ex.series < 1 ||
+      ex.series > 50
+    ) {
+      throw new Error(
+        `Informe séries válidas para ${ex.nome}.`
+      );
+    }
+
+    if (!String(ex.repeticoes || "").trim()) {
+      throw new Error(
+        `Informe as repetições de ${ex.nome}.`
+      );
+    }
+  }
+}
+
+// ==========================================
+// SALVAR FICHA
+// ==========================================
+
+$("btnSalvarTreino").addEventListener(
+  "click",
+  salvarTreino
+);
+
+async function salvarTreino() {
+  if (!personalAtual || salvando || carregando) {
     return;
   }
 
-  if (fichaAtual.length === 0) {
-    alert("Adicione pelo menos um exercício.");
-    return;
+  try {
+    validarFicha();
+
+    salvando = true;
+    $("btnSalvarTreino").disabled = true;
+    $("btnSalvarTreino").textContent = "Salvando...";
+
+    const alunoId = alunoSelecionado();
+
+    const dados = {
+      personalId: personalAtual.uid,
+      alunoId,
+      letra: letraAtual,
+      gruposMusculares: gruposEscolhidos(),
+      titulo: tituloTreino(),
+      tipo: "ficha",
+      status: "ativo",
+
+      exercicios: fichaAtual.map(ex => ({
+        exercicioId: ex.exercicioId,
+        nome: ex.nome,
+        grupo: ex.grupo,
+        equipamento: ex.equipamento || "",
+        video: ex.video || "",
+        descricao: ex.descricao || "",
+        series: Number(ex.series),
+        repeticoes: String(ex.repeticoes).trim(),
+        descanso: ex.descanso || "",
+        observacao: ex.observacao || ""
+      })),
+
+      atualizadoEm: serverTimestamp()
+    };
+
+    // Para fichas novas, usa identificação fixa
+    // por personal, aluno e letra.
+    const id = fichaEmEdicao || (
+      `${personalAtual.uid}_${alunoId}_${letraAtual}`
+    );
+
+    const referencia = doc(db, "treinos", id);
+
+    await runTransaction(db, async tx => {
+      const snap = await tx.get(referencia);
+
+      if (snap.exists()) {
+        const existente = snap.data();
+
+        if (
+          existente.personalId !== personalAtual.uid ||
+          existente.alunoId !== alunoId ||
+          (
+            letraDaFicha(existente) &&
+            letraDaFicha(existente) !== letraAtual
+          )
+        ) {
+          throw new Error(
+            "Conflito com uma ficha já cadastrada."
+          );
+        }
+
+        tx.update(referencia, dados);
+      } else {
+        tx.set(referencia, {
+          ...dados,
+          criadoEm: serverTimestamp()
+        });
+      }
+    });
+
+    const fichaLocal = {
+      id,
+      ...dados
+    };
+
+    const indice = fichasExistentes.findIndex(
+      ficha => ficha.id === id
+    );
+
+    if (indice >= 0) {
+      fichasExistentes[indice] = fichaLocal;
+    } else {
+      fichasExistentes.push(fichaLocal);
+    }
+
+    fichaEmEdicao = id;
+    alterado = false;
+
+    avisar("Ficha salva com sucesso!");
+    alert("Ficha salva com sucesso!");
+
+  } catch (erro) {
+    console.error(erro);
+    avisar(erro.message || "Erro ao salvar.", true);
+
+  } finally {
+    salvando = false;
+    $("btnSalvarTreino").disabled = false;
+    $("btnSalvarTreino").textContent = "Salvar ficha";
   }
+}
 
-  await addDoc(collection(db, "treinos"), {
-    personalId: personalAtual.uid,
-    alunoId,
-    titulo,
-    tipo: "ficha",
-    exercicios: fichaAtual,
-    status: "ativo",
-    criadoEm: serverTimestamp()
-  });
+// ==========================================
+// ATUALIZAÇÃO DA INTERFACE
+// ==========================================
 
-  alert("Ficha salva com sucesso!");
-
-  document.getElementById("alunoSelect").value = "";
-  document.getElementById("tituloTreino").value = "";
-  fichaAtual = [];
+function renderizarTudo() {
+  renderizarResumo();
+  renderizarGrupos();
+  renderizarBiblioteca();
   renderizarFicha();
-};
+}
