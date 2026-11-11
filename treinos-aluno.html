@@ -1,33 +1,535 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meus Treinos</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+
+  <title>Meus Treinos | FitCoach</title>
+
   <link rel="stylesheet" href="aluno.css">
+
+  <style>
+    .treinos-app {
+      max-width: 850px;
+    }
+
+    .treinos-app .card {
+      margin-bottom: 18px;
+    }
+
+    .treinos-app h2 {
+      font-size: 19px;
+      margin-bottom: 10px;
+    }
+
+    .treinos-ajuda {
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .treinos-letras {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .treinos-letras button {
+      width: 100%;
+      min-width: 0;
+      padding: 13px 2px;
+      background: #101014;
+      color: #bbb;
+      border: 1px solid #383842;
+      border-radius: 11px;
+      font-size: 15px;
+    }
+
+    .treinos-letras button.ativo {
+      background: #153d28;
+      color: #4ade80;
+      border-color: #22c55e;
+    }
+
+    .treinos-letras button:disabled {
+      opacity: .3;
+      cursor: default;
+    }
+
+    .treino-resumo {
+      background: #101014;
+      border: 1px solid #30303a;
+      border-radius: 13px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .treino-resumo strong {
+      font-size: 18px;
+      color: #4ade80;
+    }
+
+    .treino-resumo p {
+      color: #aaa;
+      font-size: 13px;
+      text-align: left;
+      margin-top: 6px;
+    }
+
+    .treino-exercicio {
+      padding: 15px;
+      margin-top: 10px;
+      background: #101014;
+      border: 1px solid #30303a;
+      border-radius: 12px;
+    }
+
+    .treino-exercicio strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 9px;
+    }
+
+    .treino-exercicio p {
+      color: #bbb;
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .treino-exercicio a {
+      color: #4ade80;
+      display: inline-block;
+      margin-top: 9px;
+      font-size: 13px;
+    }
+
+    .treino-presenca {
+      background: #101014;
+      border: 1px solid #30303a;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 14px;
+    }
+
+    .treino-presenca h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .treino-presenca p {
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .treino-presenca button,
+    .treino-btn-principal {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #22c55e;
+      color: #08130c;
+      font-weight: 700;
+      border: none;
+      border-radius: 11px;
+    }
+
+    .treino-presenca button:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+    .semana-cabecalho {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .semana-cabecalho h2 {
+      margin: 0;
+    }
+
+    .semana-navegacao {
+      display: flex;
+      gap: 7px;
+    }
+
+    .semana-navegacao button {
+      background: #33333d;
+      color: #fff;
+      padding: 9px 12px;
+    }
+
+    #periodoSemana {
+      color: #aaa;
+      font-size: 12px;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .semana-resumo {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .semana-resumo div {
+      padding: 13px 7px;
+      text-align: center;
+      background: #101014;
+      border-radius: 11px;
+      border: 1px solid #30303a;
+    }
+
+    .semana-resumo strong {
+      display: block;
+      font-size: 21px;
+      color: #fff;
+    }
+
+    .semana-resumo span {
+      color: #aaa;
+      font-size: 11px;
+    }
+
+    .semana-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid #33333b;
+    }
+
+    .semana-icone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 39px;
+      height: 39px;
+      flex-shrink: 0;
+      background: #303038;
+      border-radius: 11px;
+      font-size: 23px;
+    }
+
+    .semana-icone.presente {
+      background: #153d28;
+      color: #4ade80;
+    }
+
+    .semana-icone.falta {
+      background: #431c23;
+      color: #fb7185;
+    }
+
+    .semana-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .semana-info strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .semana-info p {
+      color: #aaa;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .semana-info .presente {
+      color: #4ade80;
+    }
+
+    .semana-info .falta {
+      color: #fb7185;
+    }
+
+    .semana-item button {
+      background: #34343d;
+      color: #fff;
+      padding: 9px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .treinos-vazio {
+      padding: 15px 0;
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .treinos-aviso {
+      margin-top: 12px;
+      color: #4ade80;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    .treinos-aviso.erro {
+      color: #fb7185;
+    }
+
+    .correcao-opcoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 12px 0;
+    }
+
+    .correcao-opcoes button {
+      background: #101014;
+      color: #ccc;
+      border: 1px solid #383842;
+      padding: 11px 15px;
+    }
+
+    .correcao-opcoes button.ativo {
+      color: #4ade80;
+      border-color: #22c55e;
+      background: #153d28;
+    }
+
+    .treinos-modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,.8);
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .treinos-modal[hidden] {
+      display: none !important;
+    }
+
+    .treinos-modal-conteudo {
+      background: #1c1c24;
+      border: 1px solid #3a3a45;
+      border-radius: 17px;
+      padding: 23px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .treinos-modal-conteudo h2 {
+      margin-bottom: 10px;
+    }
+
+    .treinos-modal-conteudo p {
+      color: #bbb;
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .treinos-modal-acoes {
+      display: flex;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .treinos-modal-acoes button {
+      flex: 1;
+    }
+
+    .treinos-btn-cancelar {
+      background: #34343d;
+      color: #fff;
+    }
+
+    @media (max-width: 450px) {
+      .treinos-app {
+        padding: 16px;
+      }
+
+      .treinos-letras {
+        gap: 5px;
+      }
+
+      .semana-item {
+        gap: 8px;
+      }
+
+      .semana-item button {
+        font-size: 10px;
+        padding: 8px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-  <main class="app">
+<main class="app treinos-app">
 
-    <header class="topo">
+  <header class="topo">
+    <div>
+      <p>Área do Aluno</p>
+      <h1>Meus Treinos</h1>
+    </div>
+
+    <button id="btnVoltar"
+            type="button"
+            class="btn-sair">
+      Voltar
+    </button>
+  </header>
+
+  <!-- ESCOLHA DO TREINO -->
+
+  <section class="card">
+    <h2>O que vamos treinar hoje?</h2>
+
+    <p class="treinos-ajuda">
+      Escolha uma das fichas preparadas
+      pelo seu personal.
+    </p>
+
+    <div id="seletorTreinos"
+         class="treinos-letras"></div>
+
+    <div id="resumoTreino"
+         class="treino-resumo">
+      <p>Carregando suas fichas...</p>
+    </div>
+
+    <div id="listaExercicios"></div>
+
+    <p id="mensagemTreinos"
+       class="treinos-aviso"
+       role="status"></p>
+  </section>
+
+  <!-- REGISTRO DO TREINO -->
+
+  <section class="card">
+
+    <h2>Registrar meu treino</h2>
+
+    <p class="treinos-ajuda">
+      Se você compareceu ao horário confirmado,
+      registre o treino realizado.
+    </p>
+
+    <div id="listaRegistroPresenca">
+      <p class="treinos-vazio">
+        Carregando agendamentos...
+      </p>
+    </div>
+
+  </section>
+
+  <!-- FREQUÊNCIA -->
+
+  <section class="card">
+
+    <div class="semana-cabecalho">
+      <h2>Treinos da semana</h2>
+
+      <div class="semana-navegacao">
+        <button id="semanaAnterior"
+                type="button"
+                aria-label="Semana anterior">‹</button>
+
+        <button id="semanaAtual"
+                type="button">Hoje</button>
+
+        <button id="semanaProxima"
+                type="button"
+                aria-label="Próxima semana">›</button>
+      </div>
+    </div>
+
+    <p id="periodoSemana"></p>
+
+    <div class="semana-resumo">
       <div>
-        <p>Área do Aluno</p>
-        <h1>Meus Treinos</h1>
+        <strong id="totalPresentes">0</strong>
+        <span>Presenças</span>
       </div>
-      <button onclick="voltar()" class="btn-sair">Voltar</button>
-    </header>
 
-    <section class="card">
-      <h2>Treinos recebidos</h2>
-      <div id="listaTreinos" style="margin-top: 15px;">
-        <p>Carregando treinos...</p>
+      <div>
+        <strong id="totalFaltas">0</strong>
+        <span>Faltas</span>
       </div>
-    </section>
 
-  </main>
+      <div>
+        <strong id="totalAgendados">0</strong>
+        <span>Agendados</span>
+      </div>
+    </div>
 
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="treinos-aluno.js"></script>
+    <div id="listaSemana">
+      <p class="treinos-vazio">
+        Carregando frequência...
+      </p>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- CORREÇÃO DE FALTA -->
+
+<div id="modalCorrecao"
+     class="treinos-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="tituloCorrecao"
+     hidden>
+
+  <div class="treinos-modal-conteudo">
+
+    <h2 id="tituloCorrecao">
+      Corrigir ausência
+    </h2>
+
+    <p id="descricaoCorrecao"></p>
+
+    <p style="margin-top:15px">
+      Qual treino você realizou?
+    </p>
+
+    <div id="letrasCorrecao"
+         class="correcao-opcoes"></div>
+
+    <div class="treinos-modal-acoes">
+      <button id="btnCancelarCorrecao"
+              type="button"
+              class="treinos-btn-cancelar">
+        Voltar
+      </button>
+
+      <button id="btnSalvarCorrecao"
+              type="button"
+              class="treino-btn-principal">
+        Confirmar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script type="module" src="treinos-aluno.js"></script>
+
 </body>
 </html>
