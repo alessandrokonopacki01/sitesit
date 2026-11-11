@@ -3,47 +3,202 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <title>Agenda do Aluno | FitCoach</title>
+  <title>Agendar Treino | FitCoach</title>
 
   <link rel="stylesheet" href="aluno.css">
   <link rel="stylesheet" href="agenda.css">
 </head>
 
 <body>
-  <main class="app">
+
+  <main class="app agenda-aluno-app">
 
     <header class="topo">
       <div>
         <p>Área do Aluno</p>
-        <h1>Agenda</h1>
+        <h1>Agendar Treino</h1>
       </div>
 
-      <button onclick="voltar()" class="btn-sair">
+      <button
+        id="btnVoltar"
+        type="button"
+        class="btn-sair"
+      >
         Voltar
       </button>
     </header>
 
-    <section class="card">
-      <h2>Meus agendamentos</h2>
+    <!-- RESUMO -->
 
-      <div id="listaMeusHorarios" class="agenda-lista">
-        <p>Carregando...</p>
+    <section class="card agenda-secao">
+      <h2>Escolha seus horários</h2>
+
+      <p class="agenda-ajuda">
+        Selecione um dia no calendário e marque
+        os horários desejados. Você pode escolher
+        vários dias antes de enviar sua solicitação.
+      </p>
+
+      <div class="agenda-resumo-aluno">
+        <div>
+          <span>Horários selecionados</span>
+          <strong id="totalSelecionados">0</strong>
+        </div>
+
+        <div>
+          <span>Meus agendamentos</span>
+          <strong id="totalAgendamentos">0</strong>
+        </div>
       </div>
     </section>
 
-    <section class="card agenda-secao">
-      <h2>Horários disponíveis</h2>
+    <!-- CALENDÁRIO -->
 
-      <div id="listaHorarios" class="agenda-lista">
-        <p>Carregando...</p>
+    <section class="card agenda-secao">
+
+      <div class="calendario-cabecalho">
+        <h2 id="tituloMes">Calendário</h2>
+
+        <div class="calendario-navegacao">
+          <button
+            id="mesAnterior"
+            type="button"
+            aria-label="Mês anterior"
+          >‹</button>
+
+          <button
+            id="mesProximo"
+            type="button"
+            aria-label="Próximo mês"
+          >›</button>
+        </div>
       </div>
+
+      <div class="calendario-semana">
+        <span>Dom</span>
+        <span>Seg</span>
+        <span>Ter</span>
+        <span>Qua</span>
+        <span>Qui</span>
+        <span>Sex</span>
+        <span>Sáb</span>
+      </div>
+
+      <div
+        id="calendarioDias"
+        class="calendario-dias"
+      ></div>
+
+      <div class="calendario-legenda">
+        <span>
+          <i class="legenda-disponivel"></i>
+          Disponível
+        </span>
+
+        <span>
+          <i class="legenda-selecionado"></i>
+          Selecionado
+        </span>
+      </div>
+    </section>
+
+    <!-- HORÁRIOS DO DIA -->
+
+    <section class="card agenda-secao">
+
+      <h2 id="tituloHorarios">
+        Horários disponíveis
+      </h2>
+
+      <p class="agenda-ajuda">
+        Toque nos horários para selecionar ou
+        desmarcar.
+      </p>
+
+      <div
+        id="gradeHorarios"
+        class="grade-horarios"
+      ></div>
+
+      <p
+        id="mensagemHorarios"
+        class="agenda-vazio"
+        role="status"
+      ></p>
+
+    </section>
+
+    <!-- SELEÇÃO MÚLTIPLA -->
+
+    <section class="card agenda-secao">
+
+      <div class="agenda-selecao-cabecalho">
+        <h2>Horários escolhidos</h2>
+
+        <button
+          id="btnLimparSelecao"
+          type="button"
+          class="agenda-btn-secundario"
+        >
+          Limpar
+        </button>
+      </div>
+
+      <div id="listaSelecionados">
+        <p class="agenda-vazio">
+          Nenhum horário selecionado.
+        </p>
+      </div>
+
+      <button
+        id="btnSolicitarTodos"
+        type="button"
+        class="agenda-confirmar"
+        disabled
+      >
+        Solicitar horários selecionados
+      </button>
+
+      <p
+        id="mensagemSolicitacao"
+        class="agenda-ajuda"
+        role="status"
+        aria-live="polite"
+      ></p>
+
+    </section>
+
+    <!-- AGENDAMENTOS EXISTENTES -->
+
+    <section class="card agenda-secao">
+
+      <h2>Meus agendamentos</h2>
+
+      <p class="agenda-ajuda">
+        Acompanhe as solicitações e os horários
+        confirmados pelo seu personal.
+      </p>
+
+      <div
+        id="listaMeusHorarios"
+        class="agenda-lista"
+      >
+        <p>Carregando agendamentos...</p>
+      </div>
+
     </section>
 
   </main>
 
-  <script type="module" src="agenda-aluno.js"></script>
+  <script
+    type="module"
+    src="agenda-aluno.js"
+  ></script>
+
 </body>
 </html>

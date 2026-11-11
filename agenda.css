@@ -429,3 +429,394 @@ button:disabled {
     width: 100%;
   }
 }
+
+/* ==========================================
+   FITCOACH — NOVA AGENDA DO ALUNO
+   ========================================== */
+
+.agenda-aluno-app {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* RESUMO */
+
+.agenda-resumo-aluno {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.agenda-resumo-aluno > div {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.agenda-resumo-aluno span {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.agenda-resumo-aluno strong {
+  display: block;
+  font-size: 24px;
+  color: #4ade80;
+}
+
+/* CABEÇALHO DO CALENDÁRIO */
+
+.calendario-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.calendario-cabecalho h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.calendario-navegacao {
+  display: flex;
+  gap: 8px;
+}
+
+.calendario-navegacao button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+  padding: 0;
+
+  background: #202027;
+  color: #fff;
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.calendario-navegacao button:hover {
+  border-color: #4ade80;
+}
+
+/* CALENDÁRIO */
+
+.calendario-semana,
+.calendario-dias {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calendario-semana {
+  margin-bottom: 8px;
+}
+
+.calendario-semana span {
+  text-align: center;
+  color: #888;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 0;
+}
+
+.calendario-dia {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  margin: 0;
+
+  background: #18181e;
+  color: #aaa;
+
+  border: 1px solid #30303a;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.calendario-dia.tem-horarios {
+  color: #fff;
+  border-color: #287447;
+}
+
+.calendario-dia.tem-horarios::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+
+  width: 5px;
+  height: 5px;
+
+  background: #4ade80;
+  border-radius: 50%;
+}
+
+.calendario-dia.dia-ativo {
+  background: #153d28;
+  border: 2px solid #4ade80;
+  color: #4ade80;
+}
+
+.calendario-dia.tem-selecao {
+  background: #164e32;
+  border-color: #22c55e;
+}
+
+.calendario-dia:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.calendario-vazio {
+  display: block;
+}
+
+/* LEGENDA */
+
+.calendario-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.calendario-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #aaa;
+  font-size: 12px;
+}
+
+.calendario-legenda i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legenda-disponivel {
+  background: #4ade80;
+}
+
+.legenda-selecionado {
+  background: #16803c;
+  border: 1px solid #4ade80;
+}
+
+/* GRADE DE HORÁRIOS */
+
+.grade-horarios {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.horario-opcao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 48px;
+  padding: 12px 8px;
+  margin: 0;
+
+  background: #18181e;
+  color: #fff;
+  border: 1px solid #38383f;
+  border-radius: 11px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.horario-opcao:hover {
+  border-color: #4ade80;
+}
+
+.horario-opcao.selecionado {
+  background: #153d28;
+  color: #4ade80;
+  border: 2px solid #22c55e;
+}
+
+/* SELEÇÃO MÚLTIPLA */
+
+.agenda-selecao-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.agenda-selecao-cabecalho h2 {
+  margin-bottom: 0;
+}
+
+.agenda-selecao-cabecalho button {
+  padding: 8px 14px;
+  margin: 0;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+#listaSelecionados {
+  margin-top: 18px;
+}
+
+.horario-selecionado-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 14px;
+  margin-bottom: 8px;
+
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 10px;
+}
+
+.horario-selecionado-item span {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.horario-selecionado-item button {
+  width: auto;
+  min-height: 35px;
+  padding: 8px 12px;
+  margin: 0;
+
+  background: #34343d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* CONFIRMAÇÃO */
+
+.agenda-aluno-app .agenda-confirmar {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 18px;
+  padding: 13px;
+
+  background: #22c55e;
+  color: #08130c;
+
+  border: none;
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.agenda-aluno-app .agenda-confirmar:hover {
+  background: #4ade80;
+}
+
+.agenda-aluno-app .agenda-confirmar:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* AGENDAMENTOS EXISTENTES */
+
+.agenda-aluno-app #listaMeusHorarios {
+  margin-top: 16px;
+}
+
+.agenda-aluno-app #listaMeusHorarios .agenda-item {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.agenda-aluno-app #listaMeusHorarios .agenda-item > button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* ACESSIBILIDADE */
+
+.calendario-dia:focus-visible,
+.horario-opcao:focus-visible,
+.horario-selecionado-item button:focus-visible {
+  outline: 2px solid #4ade80;
+  outline-offset: 3px;
+}
+
+/* RESPONSIVIDADE */
+
+@media (min-width: 768px) {
+  .grade-horarios {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .calendario-dia {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendario-semana,
+  .calendario-dias {
+    gap: 4px;
+  }
+
+  .calendario-dia {
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .calendario-cabecalho h2 {
+    font-size: 17px;
+  }
+
+  .grade-horarios {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .horario-opcao {
+    font-size: 13px;
+    min-height: 44px;
+  }
+}
