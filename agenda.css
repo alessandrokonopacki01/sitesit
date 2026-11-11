@@ -1255,3 +1255,85 @@ button:disabled {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+/* ==========================================
+   FREQUÊNCIA E CORREÇÃO DE FALTAS
+   ========================================== */
+
+.frequencia-filtros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.frequencia-filtros > div {
+  min-width: 0;
+}
+
+.frequencia-filtros label {
+  display: block;
+  color: #bbb;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.frequencia-filtros input,
+.frequencia-filtros select,
+.frequencia-correcao select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: #18181e;
+  color: #fff;
+  border: 1px solid #38383f;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 13px;
+}
+
+.frequencia-status {
+  font-size: 13px;
+  text-align: left;
+  margin: 8px 0;
+}
+
+.frequencia-status.presente {
+  color: #4ade80;
+}
+
+.frequencia-status.falta {
+  color: #fb7185;
+}
+
+.frequencia-status.agendado {
+  color: #aaa;
+}
+
+.frequencia-correcao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.frequencia-correcao select {
+  flex: 2 1 210px;
+}
+
+.frequencia-correcao .frequencia-botao {
+  flex: 1 1 210px;
+  background: #22c55e;
+  color: #08130c;
+  font-weight: 700;
+  min-height: 43px;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .frequencia-filtros {
+    grid-template-columns: 1fr;
+  }
+}

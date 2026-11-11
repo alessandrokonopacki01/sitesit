@@ -329,6 +329,50 @@
 
 </section>
 
+<!-- FREQUÊNCIA E CORREÇÃO DE FALTAS -->
+<section class="card agenda-secao" id="secaoFrequencia">
+  <h2>Frequência dos alunos</h2>
+
+  <p class="agenda-ajuda">
+    Veja as presenças e as faltas de aulas confirmadas.
+    Se o aluno esqueceu de registrar o treino,
+    você pode corrigir a ausência.
+  </p>
+
+  <div class="frequencia-filtros">
+    <div>
+      <label for="mesFrequencia">Mês</label>
+      <input id="mesFrequencia" type="month">
+    </div>
+
+    <div>
+      <label for="alunoFrequencia">Aluno</label>
+      <select id="alunoFrequencia">
+        <option value="todos">Todos os alunos</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="statusFrequencia">Situação</label>
+      <select id="statusFrequencia">
+        <option value="falta">Faltas</option>
+        <option value="presente">Presenças</option>
+        <option value="todos">Todas</option>
+      </select>
+    </div>
+  </div>
+
+  <p id="resumoFrequencia"
+     class="agenda-ajuda"
+     aria-live="polite"></p>
+
+  <div id="listaFrequencia" class="agenda-lista">
+    <p class="agenda-vazio">
+      Carregando frequência...
+    </p>
+  </div>
+</section>
+
 
   </main>
 

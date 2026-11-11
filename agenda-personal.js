@@ -61,7 +61,9 @@ let bloqueios = [];
 
 let cancelarAgenda = null;
 let cancelarBloqueios = null;
-
+let cancelarFichasFrequencia = null;
+let fichasFrequencia = [];
+let salvandoFrequencia = false;
 let versaoAutenticacao = 0;
 let processandoBloqueio = false;
 let gerandoAgenda = false;
@@ -217,6 +219,7 @@ onAuthStateChanged(auth, async usuario => {
     configurarDatas();
     observarAgenda();
     observarBloqueios();
+    iniciarFrequencia();
 
   } catch (erro) {
     mostrarErro(erro);
@@ -226,6 +229,10 @@ onAuthStateChanged(auth, async usuario => {
 function encerrarEscutas() {
   if (cancelarAgenda) cancelarAgenda();
   if (cancelarBloqueios) cancelarBloqueios();
+  if (cancelarFichasFrequencia) {
+  cancelarFichasFrequencia();
+}
+cancelarFichasFrequencia = null;
 
   cancelarAgenda = null;
   cancelarBloqueios = null;
@@ -289,6 +296,7 @@ async function buscarBloqueiosAtuais() {
 // OBSERVAR AGENDA
 // ==========================================
 
+
 function observarAgenda() {
   const consulta = query(
     collection(db, COLECAO_AGENDA),
@@ -306,6 +314,7 @@ function observarAgenda() {
       horarios.sort(ordenarHorarios);
 
       renderizarAgenda();
+      renderizarFrequencia();
     },
 
     erro => {
@@ -318,6 +327,7 @@ function observarAgenda() {
     }
   );
 }
+
 
 // ==========================================
 // EXIBIR AGENDA
@@ -1559,6 +1569,498 @@ async function confirmarSolicitacoesEmLote(grupo) {
       erro.message ||
       "Não foi possível confirmar os agendamentos."
     );
+  }
+}
+
+
+// ==========================================
+// FREQUÊNCIA — CORREÇÃO PELO PERSONAL
+// ==========================================
+
+function letraFichaFrequencia(ficha) {
+  const letra = String(
+    ficha.letra || ""
+  ).toUpperCase();
+
+  if (["A", "B", "C", "D", "E"].includes(letra)) {
+    return letra;
+  }
+
+  const match = String(ficha.titulo || "").match(
+    /^treino\s+([ABCDE])\b/i
+  );
+
+  return match ? match[1].toUpperCase() : null;
+}
+
+function fichasAlunoFrequencia(alunoId) {
+  const porLetra = new Map();
+
+  for (const ficha of fichasFrequencia) {
+    if (
+      ficha.alunoId !== alunoId ||
+      ficha.status !== "ativo"
+    ) continue;
+
+    const letra = letraFichaFrequencia(ficha);
+
+    if (letra && !porLetra.has(letra)) {
+      porLetra.set(letra, ficha);
+    }
+  }
+
+  return [...porLetra.entries()].sort(
+    ([a], [b]) => a.localeCompare(b)
+  );
+}
+
+function terminoHorarioFrequencia(h) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(h.data || "") ||
+    !/^\d{2}:\d{2}$/.test(h.hora || "")
+  ) {
+    return NaN;
+  }
+
+  const inicio = new Date(
+    `${h.data}T${h.hora}:00`
+  ).getTime();
+
+  const duracao = Number(h.duracaoMinutos);
+
+  const minutos = (
+    Number.isFinite(duracao) && duracao > 0
+      ? duracao
+      : 60
+  );
+
+  return inicio + minutos * 60000;
+}
+
+function situacaoFrequencia(h) {
+  if (h.presenca === "presente") {
+    return "presente";
+  }
+
+  return terminoHorarioFrequencia(h) <= Date.now()
+    ? "falta"
+    : "agendado";
+}
+
+// ==========================================
+// INICIALIZAÇÃO
+// ==========================================
+
+function iniciarFrequencia() {
+  $("mesFrequencia").value = hojeISO().slice(0, 7);
+
+  const consulta = query(
+    collection(db, "treinos"),
+    where("personalId", "==", personalAtual.uid)
+  );
+
+  cancelarFichasFrequencia = onSnapshot(
+    consulta,
+    snapshot => {
+      fichasFrequencia = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      }));
+
+      renderizarFrequencia();
+    },
+    erro => {
+      console.error(
+        "Erro ao buscar fichas para frequência:",
+        erro
+      );
+
+      $("resumoFrequencia").textContent =
+        "Não foi possível carregar as fichas.";
+    }
+  );
+
+  renderizarFrequencia();
+}
+
+// ==========================================
+// FILTROS
+// ==========================================
+
+for (const id of [
+  "mesFrequencia",
+  "alunoFrequencia",
+  "statusFrequencia"
+]) {
+  $(id).addEventListener(
+    "change",
+    renderizarFrequencia
+  );
+}
+
+// ==========================================
+// EXIBIÇÃO DA FREQUÊNCIA
+// ==========================================
+
+function renderizarFrequencia() {
+  const lista = $("listaFrequencia");
+
+  if (!lista) return;
+
+  lista.replaceChildren();
+
+  const mes =
+    $("mesFrequencia").value ||
+    hojeISO().slice(0, 7);
+
+  const alunoEscolhido =
+    $("alunoFrequencia").value;
+
+  const filtro =
+    $("statusFrequencia").value;
+
+  const agendamentos = horarios.filter(h =>
+    h.personalId === personalAtual?.uid &&
+    h.status === "confirmado" &&
+    h.alunoId &&
+    h.data?.startsWith(mes) &&
+    Number.isFinite(terminoHorarioFrequencia(h))
+  ).sort(ordenarHorarios);
+
+  // Atualiza a lista de alunos.
+  const alunosUnicos = new Map();
+
+  for (const h of horarios) {
+    if (
+      h.alunoId &&
+      h.personalId === personalAtual?.uid
+    ) {
+      alunosUnicos.set(
+        h.alunoId,
+        h.alunoNome || "Aluno"
+      );
+    }
+  }
+
+  const select = $("alunoFrequencia");
+
+  select.replaceChildren(
+    new Option("Todos os alunos", "todos")
+  );
+
+  for (
+    const [id, nome] of [...alunosUnicos].sort(
+      (a, b) => a[1].localeCompare(b[1], "pt-BR")
+    )
+  ) {
+    select.add(new Option(nome, id));
+  }
+
+  select.value = alunosUnicos.has(alunoEscolhido)
+    ? alunoEscolhido
+    : "todos";
+
+  const filtradosAluno = agendamentos.filter(h =>
+    select.value === "todos" ||
+    h.alunoId === select.value
+  );
+
+  const faltas = filtradosAluno.filter(h =>
+    situacaoFrequencia(h) === "falta"
+  ).length;
+
+  const presencas = filtradosAluno.filter(h =>
+    situacaoFrequencia(h) === "presente"
+  ).length;
+
+  $("resumoFrequencia").textContent =
+    `${presencas} presença(s) · ` +
+    `${faltas} falta(s) no mês selecionado`;
+
+  const visiveis = filtradosAluno.filter(h =>
+    filtro === "todos" ||
+    situacaoFrequencia(h) === filtro
+  );
+
+  if (!visiveis.length) {
+    mostrarMensagem(
+      lista,
+      "Nenhuma aula confirmada encontrada neste filtro."
+    );
+    return;
+  }
+
+  // Renderiza cada agendamento.
+  for (const h of visiveis) {
+    const estado = situacaoFrequencia(h);
+
+    const cartao = elemento(
+      "article",
+      "",
+      "agenda-item frequencia-item"
+    );
+
+    cartao.appendChild(
+      elemento(
+        "strong",
+        `${h.alunoNome || "Aluno"} · ` +
+        `${dataBR(h.data)} às ${h.hora}`
+      )
+    );
+
+    const textoStatus = estado === "presente"
+      ? `✓ Presente — Treino ${h.treinoLetra || "não informado"}`
+      : estado === "falta"
+        ? "✕ Ausência registrada automaticamente"
+        : "◷ Aula agendada";
+
+    cartao.appendChild(
+      elemento(
+        "p",
+        textoStatus,
+        `frequencia-status ${estado}`
+      )
+    );
+
+    if (h.presencaCorrigidaEm) {
+      cartao.appendChild(
+        elemento(
+          "p",
+          "Registro corrigido posteriormente",
+          "agenda-detalhes"
+        )
+      );
+    }
+
+    const opcoes = fichasAlunoFrequencia(
+      h.alunoId
+    );
+
+    if (
+      (estado === "falta" ||
+       estado === "presente") &&
+      opcoes.length
+    ) {
+      const linha = elemento(
+        "div",
+        "",
+        "frequencia-correcao"
+      );
+
+      const selectTreino =
+        document.createElement("select");
+
+      selectTreino.setAttribute(
+        "aria-label",
+        `Treino de ${h.alunoNome || "aluno"} ` +
+        `em ${dataBR(h.data)}`
+      );
+
+      for (const [letra, ficha] of opcoes) {
+        selectTreino.add(
+          new Option(
+            `Treino ${letra} — ` +
+            `${ficha.titulo || "Ficha"}`,
+            ficha.id
+          )
+        );
+      }
+
+      if (
+        estado === "presente" &&
+        h.treinoId &&
+        opcoes.some(
+          ([, f]) => f.id === h.treinoId
+        )
+      ) {
+        selectTreino.value = h.treinoId;
+      } else if (h.treinoLetra) {
+        const anterior = opcoes.find(
+          ([letra]) => letra === h.treinoLetra
+        );
+
+        if (anterior) {
+          selectTreino.value = anterior[1].id;
+        }
+      }
+
+      const acao = botao(
+        estado === "falta"
+          ? "Corrigir falta para presença"
+          : "Corrigir treino realizado",
+        () => corrigirFrequenciaPersonal(
+          h.id,
+          selectTreino.value
+        ),
+        "frequencia-botao"
+      );
+
+      acao.disabled = salvandoFrequencia;
+
+      linha.append(selectTreino, acao);
+      cartao.appendChild(linha);
+
+    } else if (estado === "falta") {
+      cartao.appendChild(
+        elemento(
+          "p",
+          "Cadastre uma ficha A–E para este aluno " +
+          "antes de corrigir a falta.",
+          "agenda-detalhes"
+        )
+      );
+    }
+
+    lista.appendChild(cartao);
+  }
+}
+
+// ==========================================
+// SALVAR CORREÇÃO NO FIRESTORE
+// ==========================================
+
+async function corrigirFrequenciaPersonal(
+  agendamentoId,
+  fichaId
+) {
+  if (
+    !personalAtual ||
+    salvandoFrequencia ||
+    !fichaId
+  ) return;
+
+  if (!confirm(
+    "Registrar ou corrigir a presença deste aluno nesta aula?"
+  )) return;
+
+  salvandoFrequencia = true;
+
+  try {
+    const refAgenda = doc(
+      db,
+      "agenda",
+      agendamentoId
+    );
+
+    const refFicha = doc(
+      db,
+      "treinos",
+      fichaId
+    );
+
+    await runTransaction(db, async tx => {
+      const [snapAgenda, snapFicha] =
+        await Promise.all([
+          tx.get(refAgenda),
+          tx.get(refFicha)
+        ]);
+
+      if (
+        !snapAgenda.exists() ||
+        !snapFicha.exists()
+      ) {
+        throw new Error(
+          "Aula ou ficha não encontrada."
+        );
+      }
+
+      const h = snapAgenda.data();
+      const ficha = snapFicha.data();
+
+      const letra = letraFichaFrequencia(
+        ficha
+      );
+
+      if (
+        h.personalId !== personalAtual.uid ||
+        h.status !== "confirmado" ||
+        !h.alunoId ||
+        !Number.isFinite(
+          terminoHorarioFrequencia(h)
+        ) ||
+        terminoHorarioFrequencia(h) > Date.now()
+      ) {
+        throw new Error(
+          "Apenas aulas confirmadas e já " +
+          "encerradas podem ser corrigidas."
+        );
+      }
+
+      if (
+        ficha.personalId !== personalAtual.uid ||
+        ficha.alunoId !== h.alunoId ||
+        ficha.status !== "ativo" ||
+        !letra
+      ) {
+        throw new Error(
+          "A ficha selecionada não pertence " +
+          "a este aluno ou não está ativa."
+        );
+      }
+
+      if (
+        h.presenca === "presente" &&
+        h.treinoId === fichaId
+      ) {
+        throw new Error(
+          "Esta presença já está registrada " +
+          "com esse treino."
+        );
+      }
+
+      const historico = Array.isArray(
+        h.historicoPresenca
+      ) ? h.historicoPresenca : [];
+
+      tx.update(refAgenda, {
+        presenca: "presente",
+        treinoId: fichaId,
+        treinoLetra: letra,
+        treinoTitulo: ficha.titulo ||
+          `Treino ${letra}`,
+
+        presencaRegistradaEm:
+          h.presencaRegistradaEm ||
+          serverTimestamp(),
+
+        presencaCorrigidaEm:
+          serverTimestamp(),
+
+        presencaCorrigidaPor:
+          personalAtual.uid,
+
+        historicoPresenca: [
+          ...historico,
+          {
+            de: h.presenca === "presente"
+              ? "presente"
+              : "falta",
+
+            para: "presente",
+
+            treinoAnterior:
+              h.treinoLetra || null,
+
+            treinoNovo: letra,
+
+            alteradoPor:
+              personalAtual.uid,
+
+            alteradoEm:
+              new Date().toISOString()
+          }
+        ]
+      });
+    });
+
+    alert("Presença corrigida com sucesso!");
+
+  } catch (erro) {
+    mostrarErro(erro);
+
+  } finally {
+    salvandoFrequencia = false;
+    renderizarFrequencia();
   }
 }
 
