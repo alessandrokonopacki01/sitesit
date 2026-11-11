@@ -820,3 +820,193 @@ button:disabled {
     min-height: 44px;
   }
 }
+
+/* ==========================================
+   FITCOACH — SELEÇÃO MÚLTIPLA DE DIAS
+   ========================================== */
+
+.agenda-multiplos-dias {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #30303a;
+}
+
+.agenda-multiplos-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.agenda-multiplos-topo h3 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.agenda-multiplos-topo button {
+  width: auto;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.dias-marcados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 15px 0 20px;
+  color: #aaa;
+  font-size: 13px;
+}
+
+.dia-marcado-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #153d28;
+  color: #4ade80;
+
+  border: 1px solid #22c55e;
+  border-radius: 10px;
+
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dia-marcado-item button {
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+  color: #4ade80;
+
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.agenda-multiplos-dias label {
+  display: block;
+  color: #bbb;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+#horarioComum {
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+
+  background: #18181e;
+  color: #fff;
+
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+#btnAplicarHorario {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+
+  background: #22c55e;
+  color: #08130c;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#btnAplicarHorario:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#avisoHorarioComum {
+  margin-top: 10px;
+}
+
+/* ==========================================
+   DIAS E HORÁRIOS AGRUPADOS
+   ========================================== */
+
+.agenda-aluno-app #gradeHorarios {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agenda-grupo-dia {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 14px;
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+}
+
+.agenda-grupo-dia h3 {
+  font-size: 15px;
+  color: #fff;
+  margin: 0 0 14px;
+}
+
+.agenda-grupo-dia p {
+  color: #aaa;
+  font-size: 13px;
+  text-align: left;
+}
+
+.agenda-grade-dia {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.agenda-grade-dia .horario-opcao {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.agenda-aluno-app .calendario-dia.dia-ativo {
+  background: #153d28;
+  color: #4ade80;
+  border: 2px solid #22c55e;
+}
+
+.agenda-aluno-app .calendario-dia.dia-ativo::after {
+  background: #fff;
+}
+
+@media (min-width: 768px) {
+  .agenda-grade-dia {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .agenda-multiplos-topo h3 {
+    font-size: 14px;
+  }
+
+  .agenda-grupo-dia {
+    padding: 12px;
+  }
+
+  .agenda-grade-dia {
+    gap: 7px;
+  }
+}

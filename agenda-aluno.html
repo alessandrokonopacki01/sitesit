@@ -105,6 +105,59 @@
           Selecionado
         </span>
       </div>
+
+<!-- SELEÇÃO MÚLTIPLA DE DIAS -->
+
+<div class="agenda-multiplos-dias">
+
+  <div class="agenda-multiplos-topo">
+    <h3>Dias selecionados</h3>
+
+    <button
+      type="button"
+      id="btnLimparDias"
+      class="agenda-btn-secundario"
+    >
+      Limpar dias
+    </button>
+  </div>
+
+  <p class="agenda-ajuda">
+    Toque em vários dias do calendário para
+    selecioná-los ou desmarcá-los.
+  </p>
+
+  <div id="diasMarcados" class="dias-marcados">
+    Nenhum dia selecionado.
+  </div>
+
+  <label for="horarioComum">
+    Aplicar um horário a todos os dias
+  </label>
+
+  <select id="horarioComum">
+    <option value="">
+      Selecione os dias primeiro
+    </option>
+  </select>
+
+  <button
+    type="button"
+    id="btnAplicarHorario"
+    class="agenda-confirmar"
+    disabled
+  >
+    Adicionar horário aos dias selecionados
+  </button>
+
+  <p
+    id="avisoHorarioComum"
+    class="agenda-ajuda"
+    role="status"
+  ></p>
+
+</div>
+
     </section>
 
     <!-- HORÁRIOS DO DIA -->

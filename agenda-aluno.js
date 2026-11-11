@@ -29,7 +29,6 @@ import {
 // ==========================================
 
 const $ = id => document.getElementById(id);
-
 const LIMITE_SOLICITACOES = 40;
 
 const MESES = [
@@ -45,16 +44,16 @@ const MESES = [
 
 let usuarioAtual = null;
 let dadosAluno = null;
-
 let horarios = [];
+
+let diasMarcados = new Set();
 let selecionados = new Map();
 
 let cancelarAgenda = null;
 let versaoAutenticacao = 0;
 let enviando = false;
 
-let dataSelecionada = hojeISO();
-let mesAtual = dataSelecionada.slice(0, 7);
+let mesAtual = hojeISO().slice(0, 7);
 
 // ==========================================
 // FUNÇÕES AUXILIARES
@@ -62,30 +61,27 @@ let mesAtual = dataSelecionada.slice(0, 7);
 
 function elemento(tag, texto = "", classe = "") {
   const el = document.createElement(tag);
-
   el.textContent = String(texto);
-
   if (classe) el.className = classe;
-
   return el;
 }
 
 function hojeISO() {
-  const agora = new Date();
+  const d = new Date();
 
-  const ano = agora.getFullYear();
-  const mes = String(agora.getMonth() + 1).padStart(2, "0");
-  const dia = String(agora.getDate()).padStart(2, "0");
-
-  return `${ano}-${mes}-${dia}`;
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, "0"),
+    String(d.getDate()).padStart(2, "0")
+  ].join("-");
 }
 
 function dataISO(ano, mes, dia) {
-  return (
-    `${ano}-` +
-    `${String(mes).padStart(2, "0")}-` +
-    `${String(dia).padStart(2, "0")}`
-  );
+  return [
+    ano,
+    String(mes).padStart(2, "0"),
+    String(dia).padStart(2, "0")
+  ].join("-");
 }
 
 function dataBR(data) {
@@ -93,66 +89,44 @@ function dataBR(data) {
   return `${dia}/${mes}/${ano}`;
 }
 
-function mesDeslocado(mes, deslocamento) {
+function deslocarMes(mes, quantidade) {
   const [ano, numero] = mes.split("-").map(Number);
 
-  const data = new Date(
-    ano,
-    numero - 1 + deslocamento,
-    1
-  );
+  const d = new Date(ano, numero - 1 + quantidade, 1);
 
   return dataISO(
-    data.getFullYear(),
-    data.getMonth() + 1,
+    d.getFullYear(),
+    d.getMonth() + 1,
     1
   ).slice(0, 7);
 }
 
-function statusReservado(h) {
-  return (
-    h.status === "solicitado" ||
-    h.status === "confirmado"
-  );
-}
-
-function duracaoHorario(h) {
-  const duracao = Number(h.duracaoMinutos);
-
-  return Number.isFinite(duracao) && duracao > 0
-    ? duracao
-    : 60;
-}
-
 function minutos(hora) {
-  const [h, m] = String(hora).split(":").map(Number);
+  const [h, m] = hora.split(":").map(Number);
   return h * 60 + m;
 }
 
-function intervalosColidem(a, b, c, d) {
-  return a < d && b > c;
+function duracao(h) {
+  const valor = Number(h.duracaoMinutos);
+  return Number.isFinite(valor) && valor > 0
+    ? valor
+    : 60;
 }
 
-function mesmoPeriodo(a, b) {
+function colidem(a, b) {
   if (a.data !== b.data) return false;
 
   const inicioA = minutos(a.hora);
   const inicioB = minutos(b.hora);
 
-  return intervalosColidem(
-    inicioA,
-    inicioA + duracaoHorario(a),
-    inicioB,
-    inicioB + duracaoHorario(b)
+  return (
+    inicioA < inicioB + duracao(b) &&
+    inicioB < inicioA + duracao(a)
   );
 }
 
-function meusAgendamentos() {
-  return horarios.filter(h =>
-    h.alunoId === usuarioAtual?.uid &&
-    statusReservado(h) &&
-    horarioFuturo(h.data, h.hora)
-  );
+function reservado(h) {
+  return ["solicitado", "confirmado"].includes(h.status);
 }
 
 function disponiveis() {
@@ -162,8 +136,31 @@ function disponiveis() {
   );
 }
 
+function meusAgendamentos() {
+  return horarios.filter(h =>
+    h.alunoId === usuarioAtual?.uid &&
+    reservado(h) &&
+    horarioFuturo(h.data, h.hora)
+  );
+}
+
 function mensagem(texto) {
   $("mensagemSolicitacao").textContent = texto;
+}
+
+function datasMarcadas() {
+  return [...diasMarcados].sort();
+}
+
+function podeSelecionar(h, selecao = selecionados) {
+  const ocupados = [
+    ...meusAgendamentos(),
+    ...selecao.values()
+  ];
+
+  return !ocupados.some(outro =>
+    outro.id !== h.id && colidem(h, outro)
+  );
 }
 
 // ==========================================
@@ -175,29 +172,18 @@ $("btnVoltar").onclick = () => {
 };
 
 $("mesAnterior").onclick = () => {
-  const anterior = mesDeslocado(mesAtual, -1);
+  const anterior = deslocarMes(mesAtual, -1);
 
   if (anterior < hojeISO().slice(0, 7)) return;
 
   mesAtual = anterior;
-  selecionarPrimeiroDiaMes();
   atualizarInterface();
 };
 
 $("mesProximo").onclick = () => {
-  mesAtual = mesDeslocado(mesAtual, 1);
-  selecionarPrimeiroDiaMes();
+  mesAtual = deslocarMes(mesAtual, 1);
   atualizarInterface();
 };
-
-function selecionarPrimeiroDiaMes() {
-  const datas = disponiveis()
-    .filter(h => h.data.startsWith(mesAtual))
-    .map(h => h.data)
-    .sort();
-
-  dataSelecionada = datas[0] || `${mesAtual}-01`;
-}
 
 // ==========================================
 // AUTENTICAÇÃO
@@ -214,6 +200,8 @@ onAuthStateChanged(auth, async usuario => {
   usuarioAtual = null;
   dadosAluno = null;
   horarios = [];
+
+  diasMarcados.clear();
   selecionados.clear();
 
   if (!usuario) {
@@ -240,14 +228,7 @@ onAuthStateChanged(auth, async usuario => {
     dadosAluno = perfil.data();
 
     if (!dadosAluno.personalId) {
-      $("mensagemHorarios").textContent =
-        "Conecte-se a um personal para agendar.";
-
-      mostrarMensagem(
-        $("listaMeusHorarios"),
-        "Nenhum agendamento."
-      );
-
+      mensagem("Conecte-se a um personal para agendar.");
       atualizarInterface();
       return;
     }
@@ -256,9 +237,7 @@ onAuthStateChanged(auth, async usuario => {
 
   } catch (erro) {
     console.error(erro);
-
-    $("mensagemHorarios").textContent =
-      "Não foi possível carregar sua agenda.";
+    mensagem("Não foi possível carregar a agenda.");
   }
 });
 
@@ -274,15 +253,12 @@ function observarAgenda() {
 
   cancelarAgenda = onSnapshot(
     consulta,
-
     snapshot => {
       horarios = snapshot.docs.map(d => ({
         id: d.id,
         ...d.data()
       })).sort(ordenarHorarios);
 
-      // Remove seleções que deixaram de estar
-      // disponíveis depois de uma atualização.
       const idsDisponiveis = new Set(
         disponiveis().map(h => h.id)
       );
@@ -295,18 +271,15 @@ function observarAgenda() {
 
       atualizarInterface();
     },
-
     erro => {
       console.error(erro);
-
-      $("mensagemHorarios").textContent =
-        "Erro ao carregar horários disponíveis.";
+      mensagem("Erro ao carregar horários.");
     }
   );
 }
 
 // ==========================================
-// CALENDÁRIO
+// CALENDÁRIO MULTISSELEÇÃO
 // ==========================================
 
 function renderizarCalendario() {
@@ -322,23 +295,15 @@ function renderizarCalendario() {
   calendario.replaceChildren();
 
   const primeiroDia = new Date(
-    ano,
-    mes - 1,
-    1
+    ano, mes - 1, 1
   ).getDay();
 
   const totalDias = new Date(
-    ano,
-    mes,
-    0
+    ano, mes, 0
   ).getDate();
 
-  const diasDisponiveis = new Set(
+  const datasDisponiveis = new Set(
     disponiveis().map(h => h.data)
-  );
-
-  const diasSelecionados = new Set(
-    [...selecionados.values()].map(h => h.data)
   );
 
   for (let i = 0; i < primeiroDia; i++) {
@@ -350,59 +315,108 @@ function renderizarCalendario() {
   for (let dia = 1; dia <= totalDias; dia++) {
     const data = dataISO(ano, mes, dia);
 
-    const possuiHorario = diasDisponiveis.has(data);
-    const possuiSelecao = diasSelecionados.has(data);
+    const marcado = diasMarcados.has(data);
+    const disponivel = datasDisponiveis.has(data);
 
-    const ativo = data === dataSelecionada;
-
-    const botaoDia = elemento(
+    const btn = elemento(
       "button",
       String(dia),
       "calendario-dia"
     );
 
-    botaoDia.type = "button";
+    btn.type = "button";
 
-    botaoDia.setAttribute(
-      "aria-label",
-      `Selecionar dia ${dataBR(data)}`
+    if (disponivel) {
+      btn.classList.add("tem-horarios");
+    }
+
+    if (marcado) {
+      btn.classList.add("dia-ativo", "tem-selecao");
+    }
+
+    btn.setAttribute(
+      "aria-pressed",
+      String(marcado)
     );
 
-    if (possuiHorario) {
-      botaoDia.classList.add("tem-horarios");
-    }
+    btn.setAttribute(
+      "aria-label",
+      `${marcado ? "Desmarcar" : "Marcar"} ${dataBR(data)}`
+    );
 
-    if (possuiSelecao) {
-      botaoDia.classList.add("tem-selecao");
-    }
+    btn.disabled =
+      data < hojeISO() || (!disponivel && !marcado);
 
-    if (ativo) {
-      botaoDia.classList.add("dia-ativo");
-      botaoDia.setAttribute("aria-pressed", "true");
-    } else {
-      botaoDia.setAttribute("aria-pressed", "false");
-    }
+    btn.onclick = () => {
+      if (diasMarcados.has(data)) {
+        diasMarcados.delete(data);
+      } else {
+        diasMarcados.add(data);
+      }
 
-    if (data < hojeISO() || (!possuiHorario && !possuiSelecao)) {
-      botaoDia.disabled = true;
-    }
-
-    botaoDia.onclick = () => {
-      dataSelecionada = data;
       atualizarInterface();
     };
 
-    calendario.appendChild(botaoDia);
+    calendario.appendChild(btn);
   }
 }
 
 // ==========================================
-// HORÁRIOS DO DIA
+// DIAS MARCADOS
+// ==========================================
+
+function renderizarDiasMarcados() {
+  const container = $("diasMarcados");
+  container.replaceChildren();
+
+  const datas = datasMarcadas();
+
+  if (!datas.length) {
+    container.appendChild(
+      elemento("p", "Nenhum dia selecionado.")
+    );
+    return;
+  }
+
+  datas.forEach(data => {
+    const item = elemento(
+      "div",
+      "",
+      "dia-marcado-item"
+    );
+
+    item.appendChild(
+      elemento("span", dataBR(data))
+    );
+
+    const remover = elemento("button", "×");
+    remover.type = "button";
+    remover.disabled = enviando;
+
+    remover.onclick = () => {
+      diasMarcados.delete(data);
+      atualizarInterface();
+    };
+
+    item.appendChild(remover);
+    container.appendChild(item);
+  });
+}
+
+$("btnLimparDias").onclick = () => {
+  if (enviando) return;
+
+  diasMarcados.clear();
+  atualizarInterface();
+};
+
+// ==========================================
+// HORÁRIOS DISPONÍVEIS POR DIA
 // ==========================================
 
 function renderizarHorarios() {
   $("tituloHorarios").textContent =
-    `Horários disponíveis — ${dataBR(dataSelecionada)}`;
+    "Horários dos dias selecionados";
 
   const grade = $("gradeHorarios");
   const aviso = $("mensagemHorarios");
@@ -410,87 +424,225 @@ function renderizarHorarios() {
   grade.replaceChildren();
   aviso.textContent = "";
 
-  const disponiveisDia = disponiveis()
-    .filter(h => h.data === dataSelecionada)
-    .sort(ordenarHorarios);
+  const datas = datasMarcadas();
 
-  if (!disponiveisDia.length) {
+  if (!datas.length) {
     aviso.textContent =
-      "Nenhum horário disponível nesta data.";
+      "Selecione um ou mais dias no calendário.";
     return;
   }
 
-  disponiveisDia.forEach(h => {
-    const marcado = selecionados.has(h.id);
+  let totalDisponivel = 0;
 
-    const btn = elemento(
-      "button",
-      h.hora,
-      "horario-opcao"
+  datas.forEach(data => {
+    const horariosDia = disponiveis()
+      .filter(h => h.data === data)
+      .sort(ordenarHorarios);
+
+    const grupo = elemento(
+      "div",
+      "",
+      "agenda-grupo-dia"
     );
 
-    btn.type = "button";
+    grupo.appendChild(
+      elemento("h3", dataBR(data))
+    );
 
-    if (marcado) {
-      btn.classList.add("selecionado");
+    const botoes = elemento(
+      "div",
+      "",
+      "agenda-grade-dia"
+    );
+
+    horariosDia.forEach(h => {
+      totalDisponivel++;
+
+      const marcado = selecionados.has(h.id);
+
+      const btn = elemento(
+        "button",
+        h.hora,
+        "horario-opcao"
+      );
+
+      btn.type = "button";
+
+      if (marcado) {
+        btn.classList.add("selecionado");
+      }
+
+      btn.setAttribute(
+        "aria-pressed",
+        String(marcado)
+      );
+
+      btn.onclick = () => alternarHorario(h);
+
+      botoes.appendChild(btn);
+    });
+
+    if (!horariosDia.length) {
+      grupo.appendChild(
+        elemento("p", "Sem horários disponíveis.")
+      );
+    } else {
+      grupo.appendChild(botoes);
     }
 
-    btn.setAttribute(
-      "aria-pressed",
-      marcado ? "true" : "false"
-    );
-
-    btn.onclick = () => alternarSelecao(h);
-
-    grade.appendChild(btn);
+    grade.appendChild(grupo);
   });
+
+  if (!totalDisponivel) {
+    aviso.textContent =
+      "Não há horários disponíveis nos dias escolhidos.";
+  }
 }
 
 // ==========================================
-// SELECIONAR HORÁRIOS
+// SELEÇÃO INDIVIDUAL
 // ==========================================
 
-function alternarSelecao(h) {
+function alternarHorario(h) {
   if (enviando) return;
 
   if (selecionados.has(h.id)) {
     selecionados.delete(h.id);
-    mensagem("");
-    atualizarInterface();
-    return;
+  } else {
+    if (selecionados.size >= LIMITE_SOLICITACOES) {
+      alert("Limite de 40 horários por solicitação.");
+      return;
+    }
+
+    if (!podeSelecionar(h)) {
+      alert("Já existe um horário seu nesse período.");
+      return;
+    }
+
+    selecionados.set(h.id, h);
   }
 
-  if (selecionados.size >= LIMITE_SOLICITACOES) {
-    alert(
-      `Selecione no máximo ${LIMITE_SOLICITACOES} ` +
-      "horários por solicitação."
-    );
-    return;
-  }
-
-  // Não seleciona períodos que coincidam com
-  // agendamentos já existentes do aluno.
-  const ocupados = [
-    ...meusAgendamentos(),
-    ...selecionados.values()
-  ];
-
-  if (ocupados.some(outro => mesmoPeriodo(h, outro))) {
-    alert(
-      "Você já possui um agendamento ou seleção " +
-      "neste mesmo período."
-    );
-    return;
-  }
-
-  selecionados.set(h.id, h);
   mensagem("");
-
   atualizarInterface();
 }
 
 // ==========================================
-// LISTA DE HORÁRIOS SELECIONADOS
+// HORÁRIO COMUM A VÁRIOS DIAS
+// ==========================================
+
+function horariosComuns() {
+  const datas = datasMarcadas();
+
+  if (!datas.length) return [];
+
+  const listas = datas.map(data =>
+    disponiveis().filter(h => h.data === data)
+  );
+
+  const primeira = listas[0] || [];
+
+  const comuns = primeira.filter(h =>
+    listas.every(lista =>
+      lista.some(outro =>
+        outro.hora === h.hora &&
+        duracao(outro) === duracao(h)
+      )
+    )
+  );
+
+  return [...new Set(
+    comuns.map(h => h.hora)
+  )].sort();
+}
+
+function renderizarHorarioComum() {
+  const select = $("horarioComum");
+  const valorAnterior = select.value;
+
+  select.replaceChildren(
+    new Option("Selecione um horário", "")
+  );
+
+  const comuns = horariosComuns();
+
+  comuns.forEach(hora => {
+    select.add(new Option(hora, hora));
+  });
+
+  if (comuns.includes(valorAnterior)) {
+    select.value = valorAnterior;
+  }
+
+  $("btnAplicarHorario").disabled =
+    enviando || !comuns.length;
+
+  $("avisoHorarioComum").textContent =
+    !diasMarcados.size
+      ? "Marque os dias no calendário."
+      : !comuns.length
+        ? "Não há horários iguais disponíveis em todos os dias selecionados."
+        : `${comuns.length} horário(s) em comum.`;
+}
+
+$("btnAplicarHorario").onclick = () => {
+  if (enviando) return;
+
+  const hora = $("horarioComum").value;
+
+  if (!hora) {
+    alert("Selecione um horário.");
+    return;
+  }
+
+  const datas = datasMarcadas();
+  const candidatos = [];
+
+  for (const data of datas) {
+    const h = disponiveis().find(item =>
+      item.data === data && item.hora === hora
+    );
+
+    if (!h) {
+      alert("Um dos horários não está mais disponível.");
+      return;
+    }
+
+    candidatos.push(h);
+  }
+
+  const novaSelecao = new Map(selecionados);
+  let adicionados = 0;
+  let conflitos = 0;
+
+  for (const h of candidatos) {
+    if (novaSelecao.has(h.id)) continue;
+
+    if (
+      novaSelecao.size >= LIMITE_SOLICITACOES ||
+      !podeSelecionar(h, novaSelecao)
+    ) {
+      conflitos++;
+      continue;
+    }
+
+    novaSelecao.set(h.id, h);
+    adicionados++;
+  }
+
+  selecionados = novaSelecao;
+
+  mensagem(
+    `${adicionados} horário(s) adicionado(s).` +
+    (conflitos
+      ? ` ${conflitos} ignorado(s) por conflito ou limite.`
+      : "")
+  );
+
+  atualizarInterface();
+};
+
+// ==========================================
+// HORÁRIOS SELECIONADOS
 // ==========================================
 
 function renderizarSelecionados() {
@@ -512,11 +664,7 @@ function renderizarSelecionados() {
 
   if (!itens.length) {
     lista.appendChild(
-      elemento(
-        "p",
-        "Nenhum horário selecionado.",
-        "agenda-vazio"
-      )
+      elemento("p", "Nenhum horário selecionado.")
     );
     return;
   }
@@ -535,11 +683,7 @@ function renderizarSelecionados() {
       )
     );
 
-    const remover = elemento(
-      "button",
-      "Remover"
-    );
-
+    const remover = elemento("button", "Remover");
     remover.type = "button";
     remover.disabled = enviando;
 
@@ -562,7 +706,7 @@ $("btnLimparSelecao").onclick = () => {
 };
 
 // ==========================================
-// SOLICITAR VÁRIOS HORÁRIOS
+// ENVIO DAS SOLICITAÇÕES
 // ==========================================
 
 $("btnSolicitarTodos").onclick = async () => {
@@ -575,93 +719,67 @@ $("btnSolicitarTodos").onclick = async () => {
   const itens = [...selecionados.values()]
     .sort(ordenarHorarios);
 
-  if (!itens.length) return;
+  if (
+    !itens.length ||
+    itens.length > LIMITE_SOLICITACOES
+  ) return;
 
-  if (itens.length > LIMITE_SOLICITACOES) {
-    alert("Quantidade de horários acima do limite.");
-    return;
-  }
-
-  const confirmar = confirm(
-    `Enviar ${itens.length} solicitação(ões) ` +
-    "de agendamento para seu personal?"
-  );
-
-  if (!confirmar) return;
+  if (!confirm(
+    `Solicitar ${itens.length} horário(s) ao personal?`
+  )) return;
 
   enviando = true;
   atualizarInterface();
-
   mensagem("Enviando solicitações...");
 
   try {
-    // A transação lê todos os horários antes
-    // de atualizar qualquer um deles.
-    // Se algum estiver ocupado, nenhuma
-    // solicitação do grupo será gravada.
-
     await runTransaction(db, async tx => {
       const documentos = [];
 
+      // Todas as leituras antes das alterações.
       for (const h of itens) {
-        const referencia = doc(db, "agenda", h.id);
+        const ref = doc(db, "agenda", h.id);
+        const snap = await tx.get(ref);
 
-        const snap = await tx.get(referencia);
-
-        documentos.push({
-          referencia,
-          snap,
-          esperado: h
-        });
+        documentos.push({ ref, snap, h });
       }
 
-      const registrosAtuais = [];
+      const atuais = [];
 
       for (const item of documentos) {
         if (!item.snap.exists()) {
-          throw new Error(
-            "Um dos horários não existe mais."
-          );
+          throw new Error("Um dos horários foi removido.");
         }
 
         const atual = item.snap.data();
-        const esperado = item.esperado;
 
         if (
           atual.personalId !== dadosAluno.personalId ||
           atual.status !== "disponivel" ||
-          atual.data !== esperado.data ||
-          atual.hora !== esperado.hora ||
+          atual.data !== item.h.data ||
+          atual.hora !== item.h.hora ||
           !horarioFuturo(atual.data, atual.hora)
         ) {
           throw new Error(
-            "Um dos horários deixou de estar disponível. " +
-            "Revise sua seleção."
+            "Um dos horários não está mais disponível."
           );
         }
 
-        registrosAtuais.push(atual);
+        atuais.push(atual);
       }
 
-      // Verifica conflitos dentro da própria seleção.
-      for (let i = 0; i < registrosAtuais.length; i++) {
-        for (let j = i + 1; j < registrosAtuais.length; j++) {
-          if (mesmoPeriodo(
-            registrosAtuais[i],
-            registrosAtuais[j]
-          )) {
+      for (let i = 0; i < atuais.length; i++) {
+        for (let j = i + 1; j < atuais.length; j++) {
+          if (colidem(atuais[i], atuais[j])) {
             throw new Error(
-              "Existem horários sobrepostos na seleção."
+              "Há horários sobrepostos na seleção."
             );
           }
         }
       }
 
-      // Todas as verificações foram concluídas.
-      // Agora são feitas as atualizações.
-
       for (const item of documentos) {
-        tx.update(item.referencia, {
+        tx.update(item.ref, {
           alunoId: usuarioAtual.uid,
           alunoNome: dadosAluno.nome || "Aluno",
           status: "solicitado",
@@ -673,26 +791,15 @@ $("btnSolicitarTodos").onclick = async () => {
     selecionados.clear();
 
     mensagem(
-      `${itens.length} horário(s) solicitado(s) com sucesso!`
+      `${itens.length} solicitação(ões) enviada(s)!`
     );
 
-    alert(
-      "Solicitações enviadas! " +
-      "Aguarde a confirmação do personal."
-    );
+    alert("Solicitações enviadas ao personal!");
 
   } catch (erro) {
     console.error(erro);
-
-    mensagem(
-      "Não foi possível concluir a solicitação."
-    );
-
-    alert(
-      erro.message ||
-      "Erro ao enviar os agendamentos."
-    );
-
+    alert(erro.message || "Erro ao solicitar horários.");
+    mensagem("Não foi possível enviar a seleção.");
   } finally {
     enviando = false;
     atualizarInterface();
@@ -727,13 +834,14 @@ function renderizarMeusAgendamentos() {
 
     const card = criarCartao(h, status);
 
-    const cancelar = botao(
-      "Cancelar agendamento",
-      () => cancelarAgendamento(h.id),
-      "agenda-btn-secundario"
+    card.appendChild(
+      botao(
+        "Cancelar agendamento",
+        () => cancelarAgendamento(h.id),
+        "agenda-btn-secundario"
+      )
     );
 
-    card.appendChild(cancelar);
     lista.appendChild(card);
   });
 }
@@ -751,9 +859,8 @@ async function cancelarAgendamento(id) {
 
   try {
     await runTransaction(db, async tx => {
-      const referencia = doc(db, "agenda", id);
-
-      const snap = await tx.get(referencia);
+      const ref = doc(db, "agenda", id);
+      const snap = await tx.get(ref);
 
       if (!snap.exists()) {
         throw new Error("Agendamento não encontrado.");
@@ -764,14 +871,14 @@ async function cancelarAgendamento(id) {
       if (
         h.alunoId !== usuarioAtual.uid ||
         h.personalId !== dadosAluno.personalId ||
-        !statusReservado(h)
+        !reservado(h)
       ) {
         throw new Error(
           "Este agendamento não pode ser cancelado."
         );
       }
 
-      tx.update(referencia, {
+      tx.update(ref, {
         alunoId: null,
         alunoNome: null,
         status: "disponivel",
@@ -783,32 +890,23 @@ async function cancelarAgendamento(id) {
 
   } catch (erro) {
     console.error(erro);
-
-    alert(
-      erro.message ||
-      "Não foi possível cancelar o agendamento."
-    );
+    alert(erro.message || "Erro ao cancelar.");
   }
 }
 
 // ==========================================
-// ATUALIZAÇÃO GERAL
+// ATUALIZAR INTERFACE
 // ==========================================
 
 function atualizarInterface() {
   renderizarCalendario();
+  renderizarDiasMarcados();
   renderizarHorarios();
+  renderizarHorarioComum();
   renderizarSelecionados();
   renderizarMeusAgendamentos();
 }
 
-// ==========================================
-// ENCERRAMENTO
-// ==========================================
-
 window.addEventListener("pagehide", () => {
-  if (cancelarAgenda) {
-    cancelarAgenda();
-    cancelarAgenda = null;
-  }
+  if (cancelarAgenda) cancelarAgenda();
 });
