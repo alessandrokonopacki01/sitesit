@@ -1,13 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agenda do Aluno</title>
-  <link rel="stylesheet" href="aluno.css">
-</head>
-<body>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
+  <title>Agenda do Aluno | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="agenda.css">
+</head>
+
+<body>
   <main class="app">
 
     <header class="topo">
@@ -15,19 +20,30 @@
         <p>Área do Aluno</p>
         <h1>Agenda</h1>
       </div>
-      <button onclick="voltar()" class="btn-sair">Voltar</button>
+
+      <button onclick="voltar()" class="btn-sair">
+        Voltar
+      </button>
     </header>
 
     <section class="card">
+      <h2>Meus agendamentos</h2>
+
+      <div id="listaMeusHorarios" class="agenda-lista">
+        <p>Carregando...</p>
+      </div>
+    </section>
+
+    <section class="card agenda-secao">
       <h2>Horários disponíveis</h2>
-      <div id="listaHorarios" style="margin-top: 15px;">
-        <p>Carregando horários...</p>
+
+      <div id="listaHorarios" class="agenda-lista">
+        <p>Carregando...</p>
       </div>
     </section>
 
   </main>
 
-  <script type="module" src="firebase.js"></script>
   <script type="module" src="agenda-aluno.js"></script>
 </body>
 </html>

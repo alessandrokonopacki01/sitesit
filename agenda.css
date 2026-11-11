@@ -1,0 +1,76 @@
+
+.agenda-secao {
+  margin-top: 22px;
+}
+
+.agenda-lista {
+  margin-top: 16px;
+}
+
+.agenda-item {
+  background: #101014;
+  border: 1px solid #30303a;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.agenda-item strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.agenda-status,
+.agenda-detalhes {
+  color: #bbb;
+  font-size: 13px;
+  text-align: left;
+  margin: 6px 0;
+}
+
+.agenda-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.agenda-item button {
+  margin-top: 10px;
+}
+
+.agenda-acoes button {
+  margin-top: 0;
+  flex: 1;
+}
+
+.agenda-btn-secundario {
+  background: #34343d;
+  color: #fff;
+}
+
+.agenda-form {
+  margin-top: 14px;
+}
+
+.agenda-form label {
+  display: block;
+  font-size: 13px;
+  color: #bbb;
+  margin: 0 0 6px;
+}
+
+.agenda-form button {
+  width: 100%;
+}
+
+.agenda-vazio {
+  color: #aaa;
+  font-size: 14px;
+}
+
+button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
