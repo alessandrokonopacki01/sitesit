@@ -1,0 +1,154 @@
+
+.mens-secao {
+  margin-top: 22px;
+}
+
+.mens-secao h2,
+.mens-resumo h2 {
+  font-size: 19px;
+  margin-bottom: 18px;
+}
+
+.mens-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mens-grid > div {
+  background: #101014;
+  padding: 14px;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.mens-grid span {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.mens-grid strong {
+  font-size: 17px;
+  color: #22c55e;
+  overflow-wrap: anywhere;
+}
+
+.mens-observacao {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 14px;
+}
+
+.mens-secao label {
+  display: block;
+  color: #bbb;
+  font-size: 13px;
+  margin: 12px 0 7px;
+}
+
+.mens-secao select {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: white;
+  color: #101014;
+  margin-bottom: 12px;
+}
+
+.mens-secao input {
+  margin-bottom: 12px;
+}
+
+.mens-secao form > button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.mens-lista {
+  margin-top: 15px;
+}
+
+.mens-item {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+
+.mens-item strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.mens-item h3 {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.mens-item p {
+  color: #bbb;
+  font-size: 13px;
+  margin: 7px 0;
+  text-align: left;
+}
+
+.mens-status {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 5px 12px;
+  margin-top: 9px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.mens-status.pago {
+  background: #153d28;
+  color: #4ade80;
+}
+
+.mens-status.pendente {
+  background: #42340e;
+  color: #facc15;
+}
+
+.mens-status.atrasado {
+  background: #461c1c;
+  color: #f87171;
+}
+
+.mens-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.mens-acoes button {
+  flex: 1;
+  font-size: 12px;
+  padding: 10px;
+}
+
+.mens-secundario {
+  background: #34343d;
+  color: white;
+}
+
+.mens-excluir {
+  background: #672222;
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+[hidden] {
+  display: none !important;
+}

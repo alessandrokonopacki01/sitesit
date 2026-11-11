@@ -1,13 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mensalidades</title>
-  <link rel="stylesheet" href="aluno.css">
-</head>
-<body>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <title>Mensalidades | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="mensalidades.css">
+</head>
+
+<body>
   <main class="app">
 
     <header class="topo">
@@ -15,37 +19,107 @@
         <p>Área do Personal</p>
         <h1>Mensalidades</h1>
       </div>
-      <button onclick="voltar()" class="btn-sair">Voltar</button>
+
+      <button id="voltar" class="btn-sair">Voltar</button>
     </header>
 
-    <section class="card">
-      <h2>Nova mensalidade</h2>
+    <section class="card mens-resumo">
+      <h2>Resumo financeiro</h2>
 
-      <select id="alunoSelect">
-        <option value="">Selecione o aluno</option>
-      </select>
+      <div class="mens-grid">
+        <div>
+          <span>Recebido</span>
+          <strong id="totalRecebido">R$ 0,00</strong>
+        </div>
+        <div>
+          <span>Pendente</span>
+          <strong id="totalPendente">R$ 0,00</strong>
+        </div>
+        <div>
+          <span>Em atraso</span>
+          <strong id="totalAtrasado">R$ 0,00</strong>
+        </div>
+        <div>
+          <span>Total cadastrado</span>
+          <strong id="totalGeral">R$ 0,00</strong>
+        </div>
+      </div>
 
-      <input type="text" id="nomePlano" placeholder="Ex: Plano Mensal">
-      <input type="number" id="valorPlano" placeholder="Valor em R$">
-      <input type="date" id="vencimento">
-
-      <select id="statusPagamento">
-        <option value="pendente">Pendente</option>
-        <option value="pago">Pago</option>
-        <option value="atrasado">Atrasado</option>
-      </select>
-
-      <button onclick="salvarMensalidade()">Salvar mensalidade</button>
+      <p class="mens-observacao">
+        Totais de todas as mensalidades cadastradas,
+        não apenas do mês atual.
+      </p>
     </section>
 
-    <section class="card" style="margin-top: 25px;">
+    <section class="card mens-secao">
+      <h2 id="tituloFormulario">Nova mensalidade</h2>
+
+      <form id="formMensalidade">
+        <label for="alunoSelect">Aluno</label>
+        <select id="alunoSelect" required>
+          <option value="">Selecione o aluno</option>
+        </select>
+
+        <label for="nomePlano">Nome do plano</label>
+        <input
+          type="text"
+          id="nomePlano"
+          placeholder="Ex: Plano Mensal"
+          required
+        >
+
+        <label for="valorPlano">Valor (R$)</label>
+        <input
+          type="number"
+          id="valorPlano"
+          min="0.01"
+          step="0.01"
+          placeholder="Ex: 150,00"
+          required
+        >
+
+        <label for="vencimento">Vencimento</label>
+        <input type="date" id="vencimento" required>
+
+        <label for="statusPagamento">Pagamento</label>
+        <select id="statusPagamento">
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+        </select>
+
+        <button type="submit" id="btnSalvar">
+          Salvar mensalidade
+        </button>
+
+        <button
+          type="button"
+          id="btnCancelarEdicao"
+          class="mens-secundario"
+          hidden
+        >
+          Cancelar edição
+        </button>
+      </form>
+    </section>
+
+    <section class="card mens-secao">
       <h2>Mensalidades cadastradas</h2>
-      <div id="listaMensalidades" style="margin-top: 15px;"></div>
+
+      <label for="filtroMensalidades">Filtrar por situação</label>
+      <select id="filtroMensalidades">
+        <option value="todos">Todas</option>
+        <option value="pendente">Pendentes</option>
+        <option value="atrasado">Atrasadas</option>
+        <option value="pago">Pagas</option>
+      </select>
+
+      <div id="listaMensalidades" class="mens-lista">
+        <p>Carregando mensalidades...</p>
+      </div>
     </section>
 
   </main>
 
-  <script type="module" src="firebase.js"></script>
   <script type="module" src="mensalidades-personal.js"></script>
 </body>
 </html>

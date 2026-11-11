@@ -1,3 +1,4 @@
+
 import { auth, db } from "./firebase.js";
 
 import {
@@ -5,74 +6,129 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-  collection,
-  query,
-  where,
-  getDocs
+  doc, getDoc, collection, query, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-let alunoAtual = null;
+import {
+  moeda, statusAtual, criarCartao,
+  ordenar, elemento
+} from "./mensalidades-comum.js";
 
-window.voltar = function () {
-  window.location.href = "aluno.html";
+const $ = id => document.getElementById(id);
+
+let mensalidades = [];
+let cancelarEscuta = null;
+
+$("voltar").onclick = () => {
+  location.href = "aluno.html";
 };
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async user => {
+  if (cancelarEscuta) {
+    cancelarEscuta();
+    cancelarEscuta = null;
+  }
+
   if (!user) {
-    window.location.href = "index.html";
+    location.href = "index.html";
     return;
   }
 
-  alunoAtual = user;
-  carregarMensalidades();
+  try {
+    const perfil = await getDoc(doc(db, "usuarios", user.uid));
+
+    if (!perfil.exists() || perfil.data().tipo !== "aluno") {
+      location.href = "index.html";
+      return;
+    }
+
+    const consulta = query(
+      collection(db, "mensalidades"),
+      where("alunoId", "==", user.uid)
+    );
+
+    cancelarEscuta = onSnapshot(consulta, snapshot => {
+      mensalidades = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      }));
+
+      renderizar();
+
+    }, erro => {
+      console.error(erro);
+      $("listaPendentes").textContent =
+        "Erro ao carregar mensalidades.";
+      $("listaPagas").textContent =
+        "Não foi possível carregar o histórico.";
+    });
+
+  } catch (erro) {
+    console.error(erro);
+    $("listaPendentes").textContent =
+      "Erro ao carregar seus dados.";
+  }
 });
 
-async function carregarMensalidades() {
-  const q = query(
-    collection(db, "mensalidades"),
-    where("alunoId", "==", alunoAtual.uid)
-  );
+function renderizar() {
+  const listaPendentes = $("listaPendentes");
+  const listaPagas = $("listaPagas");
 
-  const resultado = await getDocs(q);
-  const lista = document.getElementById("listaMensalidades");
+  listaPendentes.replaceChildren();
+  listaPagas.replaceChildren();
 
-  lista.innerHTML = "";
+  let aberto = 0;
+  let atrasado = 0;
+  let pago = 0;
 
-  if (resultado.empty) {
-    lista.innerHTML = "<p>Nenhuma mensalidade cadastrada ainda.</p>";
-    return;
+  const pendentes = [];
+  const pagas = [];
+
+  mensalidades.forEach(m => {
+    const valor = Number(m.valorPlano) || 0;
+    const status = statusAtual(m);
+
+    if (status === "pago") {
+      pago += valor;
+      pagas.push(m);
+    } else {
+      aberto += valor;
+      pendentes.push(m);
+
+      if (status === "atrasado") {
+        atrasado += valor;
+      }
+    }
+  });
+
+  $("valorAberto").textContent = moeda(aberto);
+  $("valorAtrasado").textContent = moeda(atrasado);
+  $("valorPago").textContent = moeda(pago);
+
+  pendentes.sort(ordenar);
+  pagas.sort(ordenar);
+
+  if (!pendentes.length) {
+    listaPendentes.appendChild(
+      elemento("p", "Você não possui mensalidades em aberto.")
+    );
+  } else {
+    pendentes.forEach(m => {
+      listaPendentes.appendChild(criarCartao(m));
+    });
   }
 
-  resultado.forEach((docMensalidade) => {
-    const mensalidade = docMensalidade.data();
-
-    const item = document.createElement("div");
-    item.style.background = "#101014";
-    item.style.padding = "14px";
-    item.style.borderRadius = "12px";
-    item.style.marginBottom = "12px";
-
-    let corStatus = "#aaa";
-
-    if (mensalidade.status === "pago") {
-      corStatus = "#22c55e";
-    }
-
-    if (mensalidade.status === "pendente") {
-      corStatus = "#facc15";
-    }
-
-    if (mensalidade.status === "atrasado") {
-      corStatus = "#ef4444";
-    }
-
-    item.innerHTML = `
-      <strong>${mensalidade.nomePlano}</strong>
-      <p style="text-align:left;">Valor: R$ ${mensalidade.valorPlano.toFixed(2)}</p>
-      <p style="text-align:left;">Vencimento: ${mensalidade.vencimento}</p>
-      <p style="text-align:left; color:${corStatus}; font-weight:bold;">Status: ${mensalidade.status}</p>
-    `;
-
-    lista.appendChild(item);
-  });
+  if (!pagas.length) {
+    listaPagas.appendChild(
+      elemento("p", "Nenhum pagamento registrado ainda.")
+    );
+  } else {
+    pagas.forEach(m => {
+      listaPagas.appendChild(criarCartao(m));
+    });
+  }
 }
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) renderizar();
+});

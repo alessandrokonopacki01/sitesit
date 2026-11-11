@@ -1,13 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minhas Mensalidades</title>
-  <link rel="stylesheet" href="aluno.css">
-</head>
-<body>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <title>Minhas Mensalidades | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="mensalidades.css">
+</head>
+
+<body>
   <main class="app">
 
     <header class="topo">
@@ -15,19 +19,47 @@
         <p>Área do Aluno</p>
         <h1>Mensalidades</h1>
       </div>
-      <button onclick="voltar()" class="btn-sair">Voltar</button>
+
+      <button id="voltar" class="btn-sair">Voltar</button>
     </header>
 
-    <section class="card">
-      <h2>Meus planos e pagamentos</h2>
-      <div id="listaMensalidades" style="margin-top: 15px;">
-        <p>Carregando mensalidades...</p>
+    <section class="card mens-resumo">
+      <h2>Resumo dos pagamentos</h2>
+
+      <div class="mens-grid">
+        <div>
+          <span>Em aberto</span>
+          <strong id="valorAberto">R$ 0,00</strong>
+        </div>
+
+        <div>
+          <span>Em atraso</span>
+          <strong id="valorAtrasado">R$ 0,00</strong>
+        </div>
+
+        <div>
+          <span>Total pago</span>
+          <strong id="valorPago">R$ 0,00</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="card mens-secao">
+      <h2>Pagamentos pendentes</h2>
+      <div id="listaPendentes" class="mens-lista">
+        <p>Carregando...</p>
+      </div>
+    </section>
+
+    <section class="card mens-secao">
+      <h2>Histórico de pagamentos</h2>
+      <div id="listaPagas" class="mens-lista">
+        <p>Carregando...</p>
       </div>
     </section>
 
   </main>
 
-  <script type="module" src="firebase.js"></script>
   <script type="module" src="mensalidades-aluno.js"></script>
 </body>
 </html>
