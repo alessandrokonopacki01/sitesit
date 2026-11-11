@@ -4,122 +4,149 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>Mensalidades | FitCoach</title>
-
   <link rel="stylesheet" href="aluno.css">
   <link rel="stylesheet" href="mensalidades.css">
 </head>
-
 <body>
-  <main class="app">
+<main class="app">
+  <header class="topo">
+    <div><p>Área do Personal</p><h1>Mensalidades</h1></div>
+    <button id="voltar" type="button" class="btn-sair">Voltar</button>
+  </header>
 
-    <header class="topo">
-      <div>
-        <p>Área do Personal</p>
-        <h1>Mensalidades</h1>
-      </div>
-
-      <button id="voltar" class="btn-sair">Voltar</button>
-    </header>
-
-    <section class="card mens-resumo">
-      <h2>Resumo financeiro</h2>
-
-      <div class="mens-grid">
-        <div>
-          <span>Recebido</span>
-          <strong id="totalRecebido">R$ 0,00</strong>
-        </div>
-        <div>
-          <span>Pendente</span>
-          <strong id="totalPendente">R$ 0,00</strong>
-        </div>
-        <div>
-          <span>Em atraso</span>
-          <strong id="totalAtrasado">R$ 0,00</strong>
-        </div>
-        <div>
-          <span>Total cadastrado</span>
-          <strong id="totalGeral">R$ 0,00</strong>
-        </div>
-      </div>
-
-      <p class="mens-observacao">
-        Totais de todas as mensalidades cadastradas,
-        não apenas do mês atual.
-      </p>
-    </section>
-
-    <section class="card mens-secao">
-      <h2 id="tituloFormulario">Nova mensalidade</h2>
-
-      <form id="formMensalidade">
-        <label for="alunoSelect">Aluno</label>
-        <select id="alunoSelect" required>
-          <option value="">Selecione o aluno</option>
-        </select>
-
-        <label for="nomePlano">Nome do plano</label>
-        <input
-          type="text"
-          id="nomePlano"
-          placeholder="Ex: Plano Mensal"
-          required
-        >
-
-        <label for="valorPlano">Valor (R$)</label>
-        <input
-          type="number"
-          id="valorPlano"
-          min="0.01"
-          step="0.01"
-          placeholder="Ex: 150,00"
-          required
-        >
-
-        <label for="vencimento">Vencimento</label>
-        <input type="date" id="vencimento" required>
-
-        <label for="statusPagamento">Pagamento</label>
-        <select id="statusPagamento">
-          <option value="pendente">Pendente</option>
-          <option value="pago">Pago</option>
-        </select>
-
-        <button type="submit" id="btnSalvar">
-          Salvar mensalidade
-        </button>
-
-        <button
-          type="button"
-          id="btnCancelarEdicao"
-          class="mens-secundario"
-          hidden
-        >
-          Cancelar edição
-        </button>
-      </form>
-    </section>
-
-    <section class="card mens-secao">
-      <h2>Mensalidades cadastradas</h2>
-
-      <label for="filtroMensalidades">Filtrar por situação</label>
-      <select id="filtroMensalidades">
-        <option value="todos">Todas</option>
-        <option value="pendente">Pendentes</option>
-        <option value="atrasado">Atrasadas</option>
-        <option value="pago">Pagas</option>
+  <section class="card mens-secao">
+    <h2>Matricular no plano mensal</h2>
+    <p class="mens-observacao">
+      Cadastre uma vez. A cobrança será exibida mês a mês,
+      até cancelar a recorrência.
+    </p>
+    <form id="formRecorrencia">
+      <label for="alunoRecorrencia">Aluno</label>
+      <select id="alunoRecorrencia" required>
+        <option value="">Selecione o aluno</option>
       </select>
 
-      <div id="listaMensalidades" class="mens-lista">
-        <p>Carregando mensalidades...</p>
+      <label for="nomePlanoRecorrencia">Nome do plano</label>
+      <input id="nomePlanoRecorrencia" type="text"
+             maxlength="100" value="Plano Mensal" required>
+
+      <label for="valorRecorrencia">Valor mensal (R$)</label>
+      <input id="valorRecorrencia" type="number"
+             min="0.01" step="0.01"
+             placeholder="150.00" required>
+
+      <label for="primeiroVencimento">Primeiro vencimento</label>
+      <input id="primeiroVencimento" type="date" required>
+
+      <button id="btnCriarRecorrencia" type="submit">
+        Ativar mensalidade recorrente
+      </button>
+    </form>
+  </section>
+
+  <section class="card mens-secao">
+    <h2>Planos mensais</h2>
+    <div id="listaRecorrencias" class="mens-lista">
+      Carregando matrículas...
+    </div>
+  </section>
+
+  <section class="card mens-resumo">
+    <h2>Resumo financeiro</h2>
+    <div class="mens-grid">
+      <div>
+        <span>Recebido</span>
+        <strong id="totalRecebido">R$ 0,00</strong>
       </div>
-    </section>
+      <div>
+        <span>Pendente</span>
+        <strong id="totalPendente">R$ 0,00</strong>
+      </div>
+      <div>
+        <span>Em atraso</span>
+        <strong id="totalAtrasado">R$ 0,00</strong>
+      </div>
+      <div>
+        <span>Total exibido</span>
+        <strong id="totalGeral">R$ 0,00</strong>
+      </div>
+    </div>
+    <p class="mens-observacao">
+      Resumo das cobranças do período selecionado
+      e das pendências anteriores.
+    </p>
+  </section>
 
-  </main>
+  <section class="card mens-secao">
+    <h2>Cobranças</h2>
 
-  <script type="module" src="mensalidades-personal.js"></script>
+    <label for="mesCobrancas">Mês de referência</label>
+    <input type="month" id="mesCobrancas">
+
+    <label for="filtroMensalidades">Situação</label>
+    <select id="filtroMensalidades">
+      <option value="todos">Todas</option>
+      <option value="pendente">Pendentes</option>
+      <option value="atrasado">Atrasadas</option>
+      <option value="pago">Pagas</option>
+    </select>
+
+    <label class="mens-checkbox">
+      <input id="incluirAtrasadas" type="checkbox" checked>
+      Incluir pendências de meses anteriores
+    </label>
+
+    <div id="listaMensalidades" class="mens-lista">
+      Carregando cobranças...
+    </div>
+  </section>
+
+  <section class="card mens-secao">
+    <h2>Cobrança avulsa (opcional)</h2>
+
+    <p class="mens-observacao">
+      Para cobranças que não se repetem.
+      As antigas continuam disponíveis para edição.
+    </p>
+
+    <h3 id="tituloFormulario">Nova cobrança avulsa</h3>
+
+    <form id="formMensalidade">
+      <label for="alunoSelect">Aluno</label>
+      <select id="alunoSelect" required>
+        <option value="">Selecione o aluno</option>
+      </select>
+
+      <label for="nomePlano">Descrição</label>
+      <input type="text" id="nomePlano"
+             maxlength="100" required>
+
+      <label for="valorPlano">Valor (R$)</label>
+      <input type="number" id="valorPlano"
+             min="0.01" step="0.01" required>
+
+      <label for="vencimento">Vencimento</label>
+      <input type="date" id="vencimento" required>
+
+      <label for="statusPagamento">Pagamento</label>
+      <select id="statusPagamento">
+        <option value="pendente">Pendente</option>
+        <option value="pago">Pago</option>
+      </select>
+
+      <button type="submit" id="btnSalvar">
+        Salvar cobrança
+      </button>
+
+      <button type="button" id="btnCancelarEdicao"
+              class="mens-secundario" hidden>
+        Cancelar edição
+      </button>
+    </form>
+  </section>
+</main>
+
+<script type="module" src="mensalidades-personal.js"></script>
 </body>
 </html>

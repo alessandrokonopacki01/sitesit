@@ -1,4 +1,8 @@
 
+/* ==========================================
+   MENSALIDADES — FITCOACH
+   ========================================== */
+
 .mens-secao {
   margin-top: 22px;
 }
@@ -8,6 +12,8 @@
   font-size: 19px;
   margin-bottom: 18px;
 }
+
+/* RESUMO FINANCEIRO */
 
 .mens-grid {
   display: grid;
@@ -41,6 +47,8 @@
   margin-top: 14px;
 }
 
+/* FORMULÁRIOS */
+
 .mens-secao label {
   display: block;
   color: #bbb;
@@ -66,6 +74,8 @@
   width: 100%;
   margin-top: 8px;
 }
+
+/* LISTAS DE COBRANÇAS */
 
 .mens-lista {
   margin-top: 15px;
@@ -97,6 +107,8 @@
   text-align: left;
 }
 
+/* STATUS */
+
 .mens-status {
   display: inline-block;
   border-radius: 20px;
@@ -120,6 +132,8 @@
   background: #461c1c;
   color: #f87171;
 }
+
+/* BOTÕES DE AÇÃO */
 
 .mens-acoes {
   display: flex;
@@ -151,4 +165,31 @@ button:disabled {
 
 [hidden] {
   display: none !important;
+}
+
+/* RECORRÊNCIA MENSAL */
+
+.mens-secao input[type="month"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.mens-checkbox {
+  display: flex !important;
+  align-items: center;
+  gap: 9px;
+}
+
+.mens-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #22c55e;
+}
+
+.mens-secao form input,
+.mens-secao form select {
+  box-sizing: border-box;
+  width: 100%;
 }
