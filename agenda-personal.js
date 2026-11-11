@@ -323,33 +323,82 @@ function observarAgenda() {
 // EXIBIR AGENDA
 // ==========================================
 
+
+// ==========================================
+// FILTROS DA AGENDA
+// ==========================================
+
+let filtroAgenda = "solicitado";
+
+document.querySelectorAll(".filtro-agenda").forEach(btn => {
+  btn.addEventListener("click", () => {
+    filtroAgenda = btn.dataset.filtro;
+
+    document.querySelectorAll(".filtro-agenda")
+      .forEach(b => {
+        b.classList.toggle(
+          "ativo",
+          b.dataset.filtro === filtroAgenda
+        );
+      });
+
+    renderizarAgenda();
+  });
+});
+
+// ==========================================
+// RENDERIZAR AGENDA COM FILTROS
+// ==========================================
+
 function renderizarAgenda() {
   const lista = $("listaAgenda");
-
   lista.replaceChildren();
 
-  const futuros = horarios.filter(h =>
-    horarioFuturo(h.data, h.hora)
+  const futuros = horarios
+    .filter(h => horarioFuturo(h.data, h.hora))
+    .sort(ordenarHorarios);
+
+  const solicitados = futuros.filter(
+    h => h.status === "solicitado"
   );
 
-  if (!futuros.length) {
+  const confirmados = futuros.filter(
+    h => h.status === "confirmado"
+  );
+
+  const disponiveis = futuros.filter(
+    h => h.status === "disponivel"
+  );
+
+  $("qtdSolicitados").textContent = solicitados.length;
+  $("qtdConfirmados").textContent = confirmados.length;
+  $("qtdDisponiveis").textContent = disponiveis.length;
+
+  // SOLICITAÇÕES AGRUPADAS POR ALUNO
+  if (filtroAgenda === "solicitado") {
+    renderizarSolicitacoes(solicitados);
+    return;
+  }
+
+  const filtrados = futuros.filter(h =>
+    filtroAgenda === "todos" ||
+    h.status === filtroAgenda
+  );
+
+  if (!filtrados.length) {
     mostrarMensagem(
       lista,
-      "Nenhum horário futuro cadastrado."
+      "Nenhum horário encontrado neste filtro."
     );
     return;
   }
 
-  futuros.forEach(h => {
-    let status = "Disponível";
-
-    if (h.status === "solicitado") {
-      status = "Aguardando confirmação";
-    }
-
-    if (h.status === "confirmado") {
-      status = "Confirmado";
-    }
+  filtrados.forEach(h => {
+    const status = h.status === "confirmado"
+      ? "Confirmado"
+      : h.status === "solicitado"
+        ? "Aguardando confirmação"
+        : "Disponível";
 
     const card = criarCartao(
       h,
@@ -359,33 +408,23 @@ function renderizarAgenda() {
         : ""
     );
 
-    const duracao = elemento(
-      "p",
-      `Duração: ${duracaoHorario(h)} minutos`,
-      "agenda-detalhes"
+    card.appendChild(
+      elemento(
+        "p",
+        `Duração: ${duracaoHorario(h)} minutos`,
+        "agenda-detalhes"
+      )
     );
 
-    card.appendChild(duracao);
-
-    const acoes = elemento(
-      "div",
-      "",
-      "agenda-acoes"
-    );
+    const acoes = elemento("div", "", "agenda-acoes");
 
     if (h.status === "solicitado") {
       acoes.appendChild(
-        botao(
-          "Confirmar",
-          () => confirmarAgendamento(h.id)
-        )
+        botao("Confirmar", () => confirmarAgendamento(h.id))
       );
     }
 
-    if (
-      h.status === "solicitado" ||
-      h.status === "confirmado"
-    ) {
+    if (["solicitado", "confirmado"].includes(h.status)) {
       acoes.appendChild(
         botao(
           "Cancelar e liberar",
@@ -409,6 +448,127 @@ function renderizarAgenda() {
     lista.appendChild(card);
   });
 }
+
+// ==========================================
+// SOLICITAÇÕES AGRUPADAS POR ALUNO
+// ==========================================
+
+function renderizarSolicitacoes(solicitados) {
+  const lista = $("listaAgenda");
+
+  if (!solicitados.length) {
+    mostrarMensagem(
+      lista,
+      "Nenhuma solicitação pendente."
+    );
+    return;
+  }
+
+  const grupos = new Map();
+
+  solicitados.forEach(h => {
+    // Horários sem aluno identificado ficam separados.
+    const chave = h.alunoId || `sem-aluno-${h.id}`;
+
+    if (!grupos.has(chave)) {
+      grupos.set(chave, {
+        alunoId: h.alunoId,
+        alunoNome: h.alunoNome || "Aluno",
+        horarios: []
+      });
+    }
+
+    grupos.get(chave).horarios.push(h);
+  });
+
+  grupos.forEach(grupo => {
+    const card = elemento(
+      "article",
+      "",
+      "agenda-grupo-solicitacao"
+    );
+
+    const cabecalho = elemento(
+      "div",
+      "",
+      "agenda-solicitacao-topo"
+    );
+
+    cabecalho.appendChild(
+      elemento("h3", grupo.alunoNome)
+    );
+
+    cabecalho.appendChild(
+      elemento(
+        "span",
+        `${grupo.horarios.length} horário(s)`,
+        "agenda-contador"
+      )
+    );
+
+    card.appendChild(cabecalho);
+
+    const listaHorarios = elemento(
+      "div",
+      "",
+      "agenda-solicitacao-horarios"
+    );
+
+    grupo.horarios.forEach(h => {
+      const linha = elemento(
+        "div",
+        "",
+        "agenda-solicitacao-linha"
+      );
+
+      linha.appendChild(
+        elemento(
+          "span",
+          `${dataBR(h.data)} às ${h.hora}`
+        )
+      );
+
+      const acoes = elemento(
+        "div",
+        "",
+        "agenda-acoes-individuais"
+      );
+
+      acoes.appendChild(
+        botao(
+          "Confirmar",
+          () => confirmarAgendamento(h.id)
+        )
+      );
+
+      acoes.appendChild(
+        botao(
+          "Cancelar",
+          () => liberarHorario(h.id),
+          "agenda-btn-secundario"
+        )
+      );
+
+      linha.appendChild(acoes);
+      listaHorarios.appendChild(linha);
+    });
+
+    card.appendChild(listaHorarios);
+
+    if (grupo.alunoId) {
+      const confirmarTodos = botao(
+        `Confirmar ${grupo.horarios.length} horário(s)`,
+        () => confirmarSolicitacoesEmLote(grupo.horarios),
+        "agenda-confirmar-grupo"
+      );
+
+      card.appendChild(confirmarTodos);
+    }
+
+    lista.appendChild(card);
+  });
+}
+
 
 // ==========================================
 // ALTERAÇÃO SEGURA DE AGENDAMENTOS
@@ -1309,6 +1469,96 @@ async function removerBloqueio(id) {
 
   } catch (erro) {
     mostrarErro(erro);
+  }
+}
+
+// ==========================================
+// CONFIRMAR SOLICITAÇÕES EM GRUPO
+// ==========================================
+
+async function confirmarSolicitacoesEmLote(grupo) {
+  if (!personalAtual || !grupo?.length) return;
+
+  const alunoId = grupo[0].alunoId;
+  const alunoNome = grupo[0].alunoNome || "Aluno";
+
+  if (!alunoId || grupo.some(h => h.alunoId !== alunoId)) {
+    alert("Grupo de solicitações inválido.");
+    return;
+  }
+
+  if (grupo.length > 400) {
+    alert("Há solicitações demais para uma única operação.");
+    return;
+  }
+
+  const confirmar = confirm(
+    `Confirmar ${grupo.length} horário(s) ` +
+    `de ${alunoNome}?\n\n` +
+    "Todos serão confirmados de uma só vez."
+  );
+
+  if (!confirmar) return;
+
+  try {
+    const ids = [...new Set(grupo.map(h => h.id))];
+
+    await runTransaction(db, async tx => {
+      const documentos = [];
+
+      // Primeiro, lê todos os documentos.
+      for (const id of ids) {
+        const ref = doc(db, "agenda", id);
+        const snap = await tx.get(ref);
+
+        documentos.push({ ref, snap });
+      }
+
+      // Verifica se as solicitações continuam válidas.
+      for (const { snap } of documentos) {
+        if (!snap.exists()) {
+          throw new Error(
+            "Um dos horários foi removido."
+          );
+        }
+
+        const h = snap.data();
+
+        if (
+          h.personalId !== personalAtual.uid ||
+          h.alunoId !== alunoId ||
+          h.status !== "solicitado" ||
+          !horarioFuturo(h.data, h.hora)
+        ) {
+          throw new Error(
+            "Uma solicitação foi alterada. " +
+            "Atualize a agenda e tente novamente."
+          );
+        }
+      }
+
+      // Confirma todos na mesma transação.
+      for (const { ref } of documentos) {
+        tx.update(ref, {
+          status: "confirmado",
+          confirmadoEm: serverTimestamp()
+        });
+      }
+    });
+
+    alert(
+      `${ids.length} agendamento(s) confirmado(s)!`
+    );
+
+    // A lista será atualizada pelo onSnapshot.
+
+  } catch (erro) {
+    console.error(erro);
+
+    alert(
+      erro.message ||
+      "Não foi possível confirmar os agendamentos."
+    );
   }
 }
 

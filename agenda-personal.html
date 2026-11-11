@@ -268,13 +268,67 @@
 
     <!-- AGENDA EXISTENTE -->
 
-    <section class="card agenda-secao">
-      <h2>Minha agenda</h2>
 
-      <div id="listaAgenda" class="agenda-lista">
-        <p>Carregando horários...</p>
-      </div>
-    </section>
+<!-- AGENDA E GERENCIAMENTO DE SOLICITAÇÕES -->
+
+<section class="card agenda-secao">
+
+  <h2>Minha agenda</h2>
+
+  <p class="agenda-ajuda">
+    Gerencie os horários e confirme as solicitações
+    de seus alunos.
+  </p>
+
+  <!-- FILTROS -->
+
+  <div class="agenda-filtros">
+
+    <button
+      type="button"
+      class="filtro-agenda ativo"
+      data-filtro="solicitado"
+    >
+      Solicitações
+      <span id="qtdSolicitados">0</span>
+    </button>
+
+    <button
+      type="button"
+      class="filtro-agenda"
+      data-filtro="confirmado"
+    >
+      Confirmados
+      <span id="qtdConfirmados">0</span>
+    </button>
+
+    <button
+      type="button"
+      class="filtro-agenda"
+      data-filtro="disponivel"
+    >
+      Disponíveis
+      <span id="qtdDisponiveis">0</span>
+    </button>
+
+    <button
+      type="button"
+      class="filtro-agenda"
+      data-filtro="todos"
+    >
+      Todos
+    </button>
+
+  </div>
+
+  <!-- LISTA -->
+
+  <div id="listaAgenda" class="agenda-lista">
+    <p>Carregando horários...</p>
+  </div>
+
+</section>
+
 
   </main>
 

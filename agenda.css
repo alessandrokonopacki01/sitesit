@@ -1010,3 +1010,153 @@ button:disabled {
     gap: 7px;
   }
 }
+
+/* ==========================================
+   FILTROS DA AGENDA DO PERSONAL
+   ========================================== */
+
+.agenda-filtros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin: 20px 0;
+}
+
+.filtro-agenda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 45px;
+  padding: 10px;
+
+  background: #18181e;
+  color: #bbb;
+
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filtro-agenda.ativo {
+  background: #153d28;
+  color: #4ade80;
+  border-color: #22c55e;
+}
+
+.filtro-agenda span {
+  padding: 3px 7px;
+  background: #30303a;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 11px;
+}
+
+/* ==========================================
+   SOLICITAÇÕES AGRUPADAS
+   ========================================== */
+
+.agenda-grupo-solicitacao {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.agenda-solicitacao-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  padding-bottom: 14px;
+  border-bottom: 1px solid #30303a;
+}
+
+.agenda-solicitacao-topo h3 {
+  color: #fff;
+  font-size: 16px;
+  margin: 0;
+}
+
+.agenda-contador {
+  background: #153d28;
+  color: #4ade80;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.agenda-solicitacao-horarios {
+  margin: 10px 0 16px;
+}
+
+.agenda-solicitacao-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 11px 0;
+  border-bottom: 1px solid #25252d;
+}
+
+.agenda-solicitacao-linha span {
+  font-size: 13px;
+  color: #ddd;
+}
+
+.agenda-acoes-individuais {
+  display: flex;
+  gap: 7px;
+}
+
+.agenda-acoes-individuais button {
+  min-height: 34px;
+  padding: 7px 10px;
+  margin: 0;
+  font-size: 11px;
+  border-radius: 8px;
+}
+
+.agenda-confirmar-grupo {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+
+  background: #22c55e;
+  color: #08130c;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.agenda-confirmar-grupo:hover {
+  background: #4ade80;
+}
+
+@media (min-width: 768px) {
+  .agenda-filtros {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .agenda-solicitacao-linha {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .agenda-acoes-individuais button {
+    flex: 1;
+  }
+}
