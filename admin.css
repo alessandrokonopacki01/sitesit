@@ -1,0 +1,341 @@
+
+/* ==========================================
+   FITCOACH — PAINEL ADMINISTRATIVO
+   ========================================== */
+
+@import url("./assinaturas.css");
+
+/* ==========================================
+   ESTRUTURA GERAL
+   ========================================== */
+
+.admin-app {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.admin-secao {
+  margin-top: 22px;
+}
+
+.admin-secao h2 {
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.admin-descricao {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 14px;
+}
+
+/* ==========================================
+   INDICADORES DO PAINEL
+   ========================================== */
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-indicador {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.admin-indicador span {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+.admin-indicador strong {
+  display: block;
+  font-size: 23px;
+  font-weight: 700;
+  color: #4ade80;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   FORMULÁRIOS ADMINISTRATIVOS
+   ========================================== */
+
+.admin-secao label {
+  display: block;
+  color: #bbb;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 15px 0 7px;
+}
+
+.admin-secao input,
+.admin-secao select {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 13px 14px;
+  margin-bottom: 12px;
+
+  border: 1px solid #38383f;
+  border-radius: 10px;
+
+  background: #18181e;
+  color: #fff;
+
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.admin-secao input:focus,
+.admin-secao select:focus {
+  border-color: #4ade80;
+}
+
+.admin-secao input::placeholder {
+  color: #777;
+}
+
+.admin-secao form > button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* ==========================================
+   LISTA DE PERSONAIS
+   ========================================== */
+
+.admin-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.admin-personal,
+.admin-pagamento {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.admin-personal h3,
+.admin-pagamento h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+
+.admin-personal p,
+.admin-pagamento p {
+  font-size: 13px;
+  color: #aaa;
+  line-height: 1.5;
+  margin: 7px 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.admin-personal .assinatura-status {
+  margin: 8px 0 12px;
+}
+
+.admin-personal button {
+  width: 100%;
+  margin-top: 14px;
+}
+
+/* ==========================================
+   GERENCIAMENTO DE ASSINATURA
+   ========================================== */
+
+#secaoAssinatura {
+  border: 1px solid #4ade80;
+}
+
+#personalSelecionado {
+  background: #101014;
+  border-radius: 10px;
+  padding: 14px;
+
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+
+  margin-bottom: 18px;
+  overflow-wrap: anywhere;
+}
+
+.admin-acoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.admin-acoes button {
+  width: 100%;
+  min-height: 44px;
+  padding: 11px;
+
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-secundario {
+  background: #34343d;
+  color: #fff;
+}
+
+.admin-perigo {
+  background: #782525;
+  color: #fff;
+}
+
+.admin-perigo:hover {
+  background: #992e2e;
+}
+
+/* ==========================================
+   HISTÓRICO DE PAGAMENTOS
+   ========================================== */
+
+.admin-pagamento {
+  border-left: 3px solid #4ade80;
+}
+
+.admin-pagamento p {
+  margin-bottom: 7px;
+}
+
+/* ==========================================
+   TELA DE VERIFICAÇÃO
+   ========================================== */
+
+.admin-verificacao {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 15px;
+  padding: 25px;
+  box-sizing: border-box;
+
+  text-align: center;
+  background: #101014;
+  color: #fff;
+}
+
+.admin-verificacao h2 {
+  font-size: 27px;
+  font-weight: 700;
+  color: #4ade80;
+}
+
+.admin-verificacao p {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 350px;
+}
+
+.admin-verificacao button {
+  max-width: 240px;
+}
+
+/* ==========================================
+   BOTÕES E ESTADOS
+   ========================================== */
+
+.admin-app button {
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.admin-app button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.admin-app button:focus-visible,
+.admin-verificacao button:focus-visible {
+  outline: 2px solid #4ade80;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   COMPATIBILIDADE COM HIDDEN
+   ========================================== */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (min-width: 768px) {
+  .admin-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .admin-lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .admin-indicador {
+    padding: 20px;
+  }
+
+  .admin-secao {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-indicador {
+    padding: 12px;
+  }
+
+  .admin-indicador strong {
+    font-size: 19px;
+  }
+
+  .admin-personal,
+  .admin-pagamento {
+    padding: 14px;
+  }
+
+  .admin-acoes {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-verificacao h2 {
+    font-size: 23px;
+  }
+}

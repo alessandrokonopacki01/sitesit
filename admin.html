@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Administração | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+  <main class="app admin-app" hidden id="painelAdmin">
+
+    <!-- CABEÇALHO -->
+
+    <header class="topo">
+      <div>
+        <p>FitCoach | Administração</p>
+        <h1>Painel Administrativo</h1>
+      </div>
+
+      <button id="btnSair" class="btn-sair">
+        Sair
+      </button>
+    </header>
+
+    <!-- RESUMO GERAL -->
+
+    <section class="card admin-secao">
+
+      <h2>Visão geral</h2>
+
+      <div class="admin-grid">
+
+        <div class="admin-indicador">
+          <span>Total de personais</span>
+          <strong id="totalPersonais">0</strong>
+        </div>
+
+        <div class="admin-indicador">
+          <span>Assinaturas ativas</span>
+          <strong id="totalAtivos">0</strong>
+        </div>
+
+        <div class="admin-indicador">
+          <span>Em teste gratuito</span>
+          <strong id="totalTestes">0</strong>
+        </div>
+
+        <div class="admin-indicador">
+          <span>Vencidos ou bloqueados</span>
+          <strong id="totalVencidos">0</strong>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RESUMO FINANCEIRO -->
+
+    <section class="card admin-secao">
+
+      <h2>Resumo financeiro</h2>
+
+      <div class="admin-grid">
+
+        <div class="admin-indicador">
+          <span>Recebido no mês</span>
+          <strong id="recebidoMes">R$ 0,00</strong>
+        </div>
+
+        <div class="admin-indicador">
+          <span>Total recebido</span>
+          <strong id="recebidoTotal">R$ 0,00</strong>
+        </div>
+
+      </div>
+
+      <p class="admin-descricao">
+        Valores referentes aos pagamentos
+        registrados das assinaturas dos personais.
+      </p>
+
+    </section>
+
+    <!-- CONFIGURAÇÃO DOS PLANOS -->
+
+    <section class="card admin-secao">
+
+      <h2>Configuração dos planos</h2>
+
+      <form id="formPlanos">
+
+        <label for="diasTeste">
+          Duração do teste gratuito (dias)
+        </label>
+
+        <input
+          id="diasTeste"
+          type="number"
+          min="1"
+          max="365"
+          value="7"
+          required
+        >
+
+        <label for="valorMensal">
+          Valor do plano mensal (R$)
+        </label>
+
+        <input
+          id="valorMensal"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Ex: 49.90"
+          required
+        >
+
+        <label for="diasMensal">
+          Duração mensal (dias)
+        </label>
+
+        <input
+          id="diasMensal"
+          type="number"
+          min="1"
+          value="30"
+          required
+        >
+
+        <label for="valorAnual">
+          Valor do plano anual (R$)
+        </label>
+
+        <input
+          id="valorAnual"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Ex: 499.90"
+          required
+        >
+
+        <label for="diasAnual">
+          Duração anual (dias)
+        </label>
+
+        <input
+          id="diasAnual"
+          type="number"
+          min="1"
+          value="365"
+          required
+        >
+
+        <button type="submit" id="btnSalvarPlanos">
+          Salvar configurações
+        </button>
+
+      </form>
+
+    </section>
+
+    <!-- GERENCIAMENTO DE PERSONAIS -->
+
+    <section class="card admin-secao">
+
+      <h2>Personal trainers cadastrados</h2>
+
+      <label for="buscaPersonal">
+        Buscar personal
+      </label>
+
+      <input
+        type="search"
+        id="buscaPersonal"
+        placeholder="Pesquisar por nome ou e-mail"
+      >
+
+      <label for="filtroStatus">
+        Situação da assinatura
+      </label>
+
+      <select id="filtroStatus">
+        <option value="todos">Todos</option>
+        <option value="ativo">Ativos</option>
+        <option value="teste">Em teste</option>
+        <option value="vencido">Vencidos</option>
+        <option value="bloqueado">Bloqueados</option>
+        <option value="liberado">Liberados manualmente</option>
+        <option value="sem_assinatura">Sem assinatura</option>
+      </select>
+
+      <div id="listaPersonais" class="admin-lista">
+        <p>Carregando personais...</p>
+      </div>
+
+    </section>
+
+    <!-- GERENCIAMENTO DE ASSINATURA -->
+
+    <section
+      class="card admin-secao"
+      id="secaoAssinatura"
+      hidden
+    >
+
+      <h2>Gerenciar assinatura</h2>
+
+      <p id="personalSelecionado">
+        Nenhum personal selecionado.
+      </p>
+
+      <form id="formAssinatura">
+
+        <input
+          type="hidden"
+          id="personalIdSelecionado"
+        >
+
+        <label for="planoSelecionado">
+          Plano
+        </label>
+
+        <select id="planoSelecionado" required>
+          <option value="teste">Teste gratuito</option>
+          <option value="mensal">Mensal</option>
+          <option value="anual">Anual</option>
+        </select>
+
+        <label for="dataInicioAssinatura">
+          Data de início
+        </label>
+
+        <input
+          type="date"
+          id="dataInicioAssinatura"
+          required
+        >
+
+        <label for="dataVencimentoAssinatura">
+          Data de vencimento
+        </label>
+
+        <input
+          type="date"
+          id="dataVencimentoAssinatura"
+          required
+        >
+
+        <label for="valorCobrado">
+          Valor cobrado (R$)
+        </label>
+
+        <input
+          id="valorCobrado"
+          type="number"
+          min="0"
+          step="0.01"
+          required
+        >
+
+        <label for="situacaoPagamento">
+          Situação do pagamento
+        </label>
+
+        <select id="situacaoPagamento">
+          <option value="pendente">
+            Pendente
+          </option>
+          <option value="pago">
+            Pago
+          </option>
+          <option value="isento">
+            Isento
+          </option>
+        </select>
+
+        <button type="submit" id="btnSalvarAssinatura">
+          Salvar assinatura
+        </button>
+
+      </form>
+
+      <div class="admin-acoes">
+
+        <button
+          type="button"
+          id="btnRenovar"
+        >
+          Renovar plano
+        </button>
+
+        <button
+          type="button"
+          id="btnLiberar"
+        >
+          Liberar acesso
+        </button>
+
+        <button
+          type="button"
+          id="btnBloquear"
+          class="admin-perigo"
+        >
+          Bloquear acesso
+        </button>
+
+        <button
+          type="button"
+          id="btnCancelarSelecao"
+          class="admin-secundario"
+        >
+          Fechar
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- HISTÓRICO FINANCEIRO -->
+
+    <section class="card admin-secao">
+
+      <h2>Histórico de pagamentos</h2>
+
+      <div id="listaPagamentos" class="admin-lista">
+        <p>Carregando pagamentos...</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- TELA DE VERIFICAÇÃO -->
+
+  <div id="telaVerificacao" class="admin-verificacao">
+    <h2>FitCoach Admin</h2>
+    <p id="mensagemVerificacao">
+      Verificando autorização...
+    </p>
+
+    <button id="btnVoltarLogin" hidden>
+      Voltar ao login
+    </button>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+
+</body>
+</html>

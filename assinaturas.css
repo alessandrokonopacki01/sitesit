@@ -1,0 +1,212 @@
+
+/* ==========================================
+   FITCOACH — SISTEMA DE ASSINATURAS
+   ========================================== */
+
+/* SEÇÕES */
+
+.assinatura-secao {
+  margin-top: 22px;
+}
+
+.assinatura-secao h2 {
+  font-size: 19px;
+  margin-bottom: 16px;
+}
+
+.assinatura-descricao {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 12px 0;
+}
+
+/* ==========================================
+   SITUAÇÃO DA ASSINATURA
+   ========================================== */
+
+.assinatura-situacao {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.assinatura-situacao h3 {
+  font-size: 22px;
+  color: #fff;
+  margin: 18px 0 10px;
+}
+
+.assinatura-situacao p {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   ETIQUETAS DE STATUS
+   ========================================== */
+
+.assinatura-status {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 7px 13px;
+  border-radius: 30px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  background: #30303a;
+  color: #ddd;
+}
+
+.assinatura-status.ativo {
+  background: #153d28;
+  color: #4ade80;
+}
+
+.assinatura-status.teste {
+  background: #17334b;
+  color: #7dd3fc;
+}
+
+.assinatura-status.vencido {
+  background: #461c1c;
+  color: #f87171;
+}
+
+.assinatura-status.bloqueado {
+  background: #521b1b;
+  color: #fca5a5;
+}
+
+.assinatura-status.liberado {
+  background: #153d28;
+  color: #4ade80;
+}
+
+.assinatura-status.sem_assinatura {
+  background: #42340e;
+  color: #facc15;
+}
+
+/* ==========================================
+   INDICADORES DO PLANO
+   ========================================== */
+
+.assinatura-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.assinatura-indicador {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.assinatura-indicador span {
+  display: block;
+  color: #aaa;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.assinatura-indicador strong {
+  display: block;
+  color: #4ade80;
+  font-size: 19px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   AVISOS DE VENCIMENTO
+   ========================================== */
+
+.assinatura-aviso {
+  background: #35290d;
+  border: 1px solid #75591a;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.assinatura-aviso h2 {
+  color: #facc15;
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+.assinatura-aviso p {
+  color: #f5df9c;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.assinatura-info {
+  background: #101014;
+  border: 1px solid #30303a;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 18px;
+}
+
+.assinatura-info strong {
+  display: block;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.assinatura-info p {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ==========================================
+   COMPATIBILIDADE
+   ========================================== */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (min-width: 768px) {
+  .assinatura-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .assinatura-situacao {
+    padding: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .assinatura-indicador {
+    padding: 12px;
+  }
+
+  .assinatura-indicador strong {
+    font-size: 17px;
+  }
+
+  .assinatura-situacao {
+    padding: 16px;
+  }
+
+  .assinatura-situacao h3 {
+    font-size: 19px;
+  }
+}

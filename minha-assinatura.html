@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Minha Assinatura | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+  <link rel="stylesheet" href="assinaturas.css">
+
+</head>
+
+<body>
+
+  <main class="app">
+
+    <!-- CABEÇALHO -->
+
+    <header class="topo">
+
+      <div>
+        <p>Área do Personal</p>
+        <h1>Minha Assinatura</h1>
+      </div>
+
+      <button
+        type="button"
+        id="btnVoltar"
+        class="btn-sair"
+      >
+        Voltar
+      </button>
+
+    </header>
+
+    <!-- SITUAÇÃO DA ASSINATURA -->
+
+    <section class="card assinatura-secao">
+
+      <h2>Situação da assinatura</h2>
+
+      <div class="assinatura-situacao">
+
+        <span
+          id="statusAssinatura"
+          class="assinatura-status"
+        >
+          Carregando...
+        </span>
+
+        <h3 id="nomePlano">
+          Consultando plano...
+        </h3>
+
+        <p id="mensagemPlano">
+          Estamos verificando sua assinatura.
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- INFORMAÇÕES DO PLANO -->
+
+    <section class="card assinatura-secao">
+
+      <h2>Informações do plano</h2>
+
+      <div class="assinatura-grid">
+
+        <div class="assinatura-indicador">
+
+          <span>Plano contratado</span>
+
+          <strong id="planoAtual">
+            --
+          </strong>
+
+        </div>
+
+        <div class="assinatura-indicador">
+
+          <span>Dias restantes</span>
+
+          <strong id="diasRestantes">
+            --
+          </strong>
+
+        </div>
+
+        <div class="assinatura-indicador">
+
+          <span>Data de início</span>
+
+          <strong id="dataInicio">
+            --
+          </strong>
+
+        </div>
+
+        <div class="assinatura-indicador">
+
+          <span>Data de vencimento</span>
+
+          <strong id="dataVencimento">
+            --
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- AVISO DE VENCIMENTO -->
+
+    <section
+      class="card assinatura-secao"
+      id="avisoVencimento"
+      hidden
+    >
+
+      <div class="assinatura-aviso">
+
+        <h2 id="tituloAviso">
+          Atenção ao vencimento
+        </h2>
+
+        <p id="textoAviso">
+          Sua assinatura está próxima do vencimento.
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- INFORMAÇÕES DE RENOVAÇÃO -->
+
+    <section class="card assinatura-secao">
+
+      <h2>Renovação</h2>
+
+      <p class="assinatura-descricao">
+        Para renovar sua assinatura, entre em
+        contato com o administrador do FitCoach.
+      </p>
+
+      <p class="assinatura-descricao">
+        Após a confirmação do pagamento,
+        o administrador atualizará seu período
+        de acesso.
+      </p>
+
+      <div class="assinatura-info">
+        <strong>Importante</strong>
+
+        <p>
+          Os pagamentos ainda são confirmados
+          manualmente. Esta página não realiza
+          cobranças automáticas.
+        </p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script
+    type="module"
+    src="minha-assinatura.js"
+  ></script>
+
+</body>
+
+</html>
