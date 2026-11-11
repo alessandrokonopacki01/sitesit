@@ -36,7 +36,7 @@ import {
 
 // Substitua pelo UID da sua conta no Firebase Authentication.
 // Essa verificação controla a interface, não protege o banco.
-const ADMIN_UID = "j2nmyNwANGRk4yf0O8t8EJnG1R22";
+const ADMIN_UID = "UFf18ucxwNU7Q4yoWTWWiPsJWkW2";
 
 // ==========================================
 // ELEMENTOS E ESTADO
