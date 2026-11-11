@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -7,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-  [hidden] {
-    display: none !important;
-  }
-</style>
+        [hidden] {
+            display: none !important;
+        }
+    </style>
 
     <title>Painel do Personal | FitCoach</title>
 
@@ -50,25 +49,21 @@
 
         <section class="grid">
 
-            <div class="card item">
+
+            <div class="card item" onclick="window.location.href='meus-alunos.html'">
                 <span>👥</span>
                 <h3>Meus Alunos</h3>
                 <p id="totalAlunos">0 alunos</p>
             </div>
 
-            <div
-                class="card item"
-                onclick="window.location.href='treinos-personal.html'"
-            >
+
+            <div class="card item" onclick="window.location.href='treinos-personal.html'">
                 <span>🏋️</span>
                 <h3>Treinos</h3>
                 <p>Criar e enviar treinos</p>
             </div>
 
-            <div
-                class="card item"
-                onclick="window.location.href='avaliacoes-personal.html'"
-            >
+            <div class="card item" onclick="window.location.href='avaliacoes-personal.html'">
                 <span>📊</span>
                 <h3>Avaliações</h3>
                 <p>Cadastrar avaliações físicas</p>
@@ -76,37 +71,25 @@
 
             <!-- NOVA FUNCIONALIDADE -->
 
-            <div
-                class="card item"
-                onclick="window.location.href='evolucao.html'"
-            >
+            <div class="card item" onclick="window.location.href='evolucao.html'">
                 <span>📈</span>
                 <h3>Evolução Física</h3>
                 <p>Gráficos de evolução dos alunos</p>
             </div>
 
-            <div
-                class="card item"
-                onclick="window.location.href='agenda-personal.html'"
-            >
+            <div class="card item" onclick="window.location.href='agenda-personal.html'">
                 <span>📅</span>
                 <h3>Agenda</h3>
                 <p>Horários e aulas</p>
             </div>
 
-            <div
-                class="card item"
-                onclick="window.location.href='mensalidades-personal.html'"
-            >
+            <div class="card item" onclick="window.location.href='mensalidades-personal.html'">
                 <span>💰</span>
                 <h3>Financeiro</h3>
                 <p>Controle de mensalidades</p>
             </div>
 
-            <div
-                class="card item"
-                onclick="window.location.href='exercicios-personal.html'"
-            >
+            <div class="card item" onclick="window.location.href='exercicios-personal.html'">
                 <span>📚</span>
                 <h3>Exercícios</h3>
                 <p>Galeria de exercícios</p>
@@ -120,10 +103,7 @@
 
             <h2>Alunos vinculados</h2>
 
-            <div
-                id="listaAlunos"
-                style="margin-top: 15px;"
-            >
+            <div id="listaAlunos" style="margin-top: 15px;">
                 <p>Nenhum aluno vinculado ainda.</p>
             </div>
 
@@ -131,15 +111,9 @@
 
     </main>
 
-    <script
-        type="module"
-        src="firebase.js"
-    ></script>
+    <script type="module" src="firebase.js"></script>
 
-    <script
-        type="module"
-        src="personal.js"
-    ></script>
+    <script type="module" src="personal.js"></script>
 
 </body>
 

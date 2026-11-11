@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Meus Alunos | FitCoach</title>
+
+  <link rel="stylesheet" href="aluno.css">
+
+  <style>
+    .alunos-resumo {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .alunos-indicador {
+      background: #101014;
+      border: 1px solid #30303a;
+      border-radius: 12px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .alunos-indicador span {
+      display: block;
+      color: #aaa;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .alunos-indicador strong {
+      font-size: 22px;
+      color: #4ade80;
+    }
+
+    #listaAlunos {
+      margin-top: 18px;
+    }
+
+    .aluno-card {
+      background: #101014;
+      border: 1px solid #30303a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .aluno-card h3 {
+      font-size: 16px;
+      margin-bottom: 7px;
+    }
+
+    .aluno-card p {
+      color: #aaa;
+      font-size: 13px;
+      margin: 7px 0;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    .matricula-status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .matricula-status.ativa {
+      background: #153d28;
+      color: #4ade80;
+    }
+
+    .matricula-status.bloqueada {
+      background: #461c1c;
+      color: #f87171;
+    }
+
+    .aluno-acoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .aluno-acoes button {
+      flex: 1;
+      min-height: 42px;
+    }
+
+    .btn-bloquear {
+      background: #782525;
+      color: #fff;
+    }
+
+    .btn-desbloquear {
+      background: #16803c;
+      color: #fff;
+    }
+
+    .aluno-acoes button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 480px) {
+      .alunos-indicador {
+        padding: 10px;
+      }
+
+      .alunos-indicador strong {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app" id="painelAlunos" hidden>
+
+    <header class="topo">
+      <div>
+        <p>Área do Personal</p>
+        <h1>Meus Alunos</h1>
+      </div>
+
+      <button
+        type="button"
+        id="btnVoltar"
+        class="btn-sair"
+      >
+        Voltar
+      </button>
+    </header>
+
+    <section class="card">
+
+      <h2>Controle de matrículas</h2>
+
+      <div class="alunos-resumo">
+
+        <div class="alunos-indicador">
+          <span>Total</span>
+          <strong id="totalAlunos">0</strong>
+        </div>
+
+        <div class="alunos-indicador">
+          <span>Ativas</span>
+          <strong id="totalAtivos">0</strong>
+        </div>
+
+        <div class="alunos-indicador">
+          <span>Bloqueadas</span>
+          <strong id="totalBloqueados">0</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="card" style="margin-top: 20px;">
+
+      <h2>Alunos vinculados</h2>
+
+      <div id="listaAlunos">
+        <p>Carregando alunos...</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="avisoAcesso" style="
+    color: #fff;
+    text-align: center;
+    padding: 40px 20px;
+  ">
+    Verificando acesso...
+  </div>
+
+  <script
+    type="module"
+    src="meus-alunos.js"
+  ></script>
+
+</body>
+</html>
