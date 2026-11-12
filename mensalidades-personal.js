@@ -32,22 +32,30 @@ import {
   cobrancasVisiveis
 } from "./mensalidades-comum.js";
 
+// ==========================================
+// CONFIGURAÇÕES E ESTADO
+// ==========================================
+
 const $ = id => document.getElementById(id);
 
 let personalAtual = null;
 let alunos = [];
 let registros = [];
-let editandoId = null;
 
+let editandoId = null;
 let cancelarEscuta = null;
+let cancelarEscutaAlunos = null;
+
 let versaoAuth = 0;
 let emOperacao = false;
 
 // ==========================================
-// ELEMENTOS E EVENTOS
+// NAVEGAÇÃO E FILTROS
 // ==========================================
 
-$("voltar").onclick = () => location.href = "personal.html";
+$("voltar").onclick = () => {
+  location.href = "personal.html";
+};
 
 $("btnCancelarEdicao").onclick = limparFormulario;
 
@@ -62,22 +70,23 @@ $("mesCobrancas").value = competenciaAtual();
 // AUTENTICAÇÃO
 // ==========================================
 
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, async usuario => {
   const versao = ++versaoAuth;
 
-  if (cancelarEscuta) cancelarEscuta();
+  encerrarEscutas();
 
-  cancelarEscuta = null;
   personalAtual = null;
+  alunos = [];
   registros = [];
 
-  if (!user) {
-    return location.replace("index.html");
+  if (!usuario) {
+    location.replace("index.html");
+    return;
   }
 
   try {
     const perfil = await getDoc(
-      doc(db, "usuarios", user.uid)
+      doc(db, "usuarios", usuario.uid)
     );
 
     if (versao !== versaoAuth) return;
@@ -86,99 +95,185 @@ onAuthStateChanged(auth, async user => {
       !perfil.exists() ||
       perfil.data().tipo !== "personal"
     ) {
-      return location.replace("index.html");
+      location.replace("index.html");
+      return;
     }
 
-    personalAtual = user;
+    personalAtual = usuario;
 
-    await carregarAlunos();
-
-    if (versao !== versaoAuth) return;
-
-    const consulta = query(
-      collection(db, "mensalidades"),
-      where("personalId", "==", user.uid)
-    );
-
-    cancelarEscuta = onSnapshot(
-      consulta,
-      snap => {
-        registros = snap.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        }));
-
-        renderizar();
-      },
-      erro => {
-        console.error(erro);
-        $("listaMensalidades").textContent =
-          "Erro ao carregar as cobranças.";
-      }
-    );
+    observarAlunos();
+    observarMensalidades();
 
   } catch (erro) {
     console.error(erro);
-    alert("Não foi possível carregar as mensalidades.");
+
+    alert(
+      "Não foi possível carregar o sistema de mensalidades."
+    );
   }
 });
 
 // ==========================================
-// CARREGAR ALUNOS
+// ALUNOS EM TEMPO REAL
 // ==========================================
 
-async function carregarAlunos() {
+function observarAlunos() {
   const consulta = query(
     collection(db, "usuarios"),
     where("tipo", "==", "aluno"),
     where("personalId", "==", personalAtual.uid)
   );
 
-  const resultado = await getDocs(consulta);
+  cancelarEscutaAlunos = onSnapshot(
+    consulta,
 
-  alunos = resultado.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  })).sort((a, b) =>
-    (a.nome || "").localeCompare(b.nome || "", "pt-BR")
+    snapshot => {
+      alunos = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      })).sort((a, b) =>
+        (a.nome || "").localeCompare(
+          b.nome || "",
+          "pt-BR"
+        )
+      );
+
+      atualizarSeletoresAlunos();
+    },
+
+    erro => {
+      console.error("Erro ao carregar alunos:", erro);
+    }
   );
+}
 
-  for (const nome of ["alunoSelect", "alunoRecorrencia"]) {
-    const select = $(nome);
+function atualizarSeletoresAlunos() {
+  for (const id of [
+    "alunoSelect",
+    "alunoRecorrencia"
+  ]) {
+    const select = $(id);
+    const anterior = select.value;
 
     select.replaceChildren(
       new Option("Selecione o aluno", "")
     );
 
     for (const aluno of alunos) {
+      // Alunos cancelados não podem criar
+      // novas recorrências.
+      if (
+        id === "alunoRecorrencia" &&
+        aluno.matriculaCancelada === true
+      ) {
+        continue;
+      }
+
+      const nome = aluno.nome || "Aluno";
+
       select.add(
-        new Option(aluno.nome || "Aluno", aluno.id)
+        new Option(
+          aluno.matriculaCancelada === true
+            ? `${nome} (matrícula cancelada)`
+            : nome,
+          aluno.id
+        )
       );
+    }
+
+    if (
+      [...select.options].some(
+        opcao => opcao.value === anterior
+      )
+    ) {
+      select.value = anterior;
     }
   }
 }
 
 // ==========================================
-// ÍNDICE DE RECORRÊNCIA
+// MENSALIDADES EM TEMPO REAL
 // ==========================================
 
-function indicePlanoId(alunoId) {
-  return `indice_${personalAtual.uid}_${alunoId}`;
+function observarMensalidades() {
+  const consulta = query(
+    collection(db, "mensalidades"),
+    where("personalId", "==", personalAtual.uid)
+  );
+
+  cancelarEscuta = onSnapshot(
+    consulta,
+
+    snapshot => {
+      registros = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      }));
+
+      renderizar();
+    },
+
+    erro => {
+      console.error(erro);
+
+      $("listaMensalidades").textContent =
+        "Não foi possível carregar as mensalidades.";
+    }
+  );
 }
 
 // ==========================================
-// CRIAR PLANO MENSAL
+// IDENTIFICADOR DA RECORRÊNCIA
+// ==========================================
+
+function indicePlanoId(alunoId) {
+  return (
+    `indice_${personalAtual.uid}_${alunoId}`
+  );
+}
+
+// ==========================================
+// VALIDAÇÃO DE DATAS
+// ==========================================
+
+function dataValida(data) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data || "")) {
+    return false;
+  }
+
+  const [ano, mes, dia] = data
+    .split("-")
+    .map(Number);
+
+  const teste = new Date(
+    ano,
+    mes - 1,
+    dia,
+    12
+  );
+
+  return (
+    teste.getFullYear() === ano &&
+    teste.getMonth() + 1 === mes &&
+    teste.getDate() === dia
+  );
+}
+
+// ==========================================
+// CRIAR PLANO MENSAL RECORRENTE
 // ==========================================
 
 $("formRecorrencia").addEventListener(
   "submit",
-  async event => {
-    event.preventDefault();
+  async evento => {
+    evento.preventDefault();
 
     if (!personalAtual || emOperacao) return;
 
+    const alunoId = $("alunoRecorrencia").value;
+
     const aluno = alunos.find(
-      a => a.id === $("alunoRecorrencia").value
+      a => a.id === alunoId
     );
 
     const nomePlano =
@@ -190,44 +285,51 @@ $("formRecorrencia").addEventListener(
     const primeiraData =
       $("primeiroVencimento").value;
 
-    if (
-      !aluno ||
-      !nomePlano ||
-      !(valorPlano > 0) ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(primeiraData)
-    ) {
-      return alert(
-        "Preencha corretamente o plano mensal."
-      );
+    if (!aluno) {
+      alert("Selecione um aluno.");
+      return;
     }
 
-    const [ano, mes, dia] = primeiraData
-      .split("-")
-      .map(Number);
+    if (aluno.matriculaCancelada === true) {
+      alert(
+        "A matrícula deste aluno está cancelada.\n\n" +
+        "Reative a matrícula antes de criar um plano mensal."
+      );
 
-    const teste = new Date(
-      ano,
-      mes - 1,
-      dia,
-      12
+      return;
+    }
+
+    if (
+      !nomePlano ||
+      !Number.isFinite(valorPlano) ||
+      valorPlano <= 0 ||
+      !dataValida(primeiraData)
+    ) {
+      alert(
+        "Preencha corretamente os dados do plano."
+      );
+
+      return;
+    }
+
+    const diaVencimento = Number(
+      primeiraData.split("-")[2]
     );
 
-    if (
-      teste.getFullYear() !== ano ||
-      teste.getMonth() + 1 !== mes ||
-      teste.getDate() !== dia
-    ) {
-      return alert("Data inicial inválida.");
-    }
-
-    const refPlano = doc(
+    const referenciaPlano = doc(
       collection(db, "mensalidades")
     );
 
-    const refIndice = doc(
+    const referenciaIndice = doc(
       db,
       "mensalidades",
-      indicePlanoId(aluno.id)
+      indicePlanoId(alunoId)
+    );
+
+    const referenciaAluno = doc(
+      db,
+      "usuarios",
+      alunoId
     );
 
     emOperacao = true;
@@ -236,49 +338,99 @@ $("formRecorrencia").addEventListener(
 
     try {
       await runTransaction(db, async tx => {
-        const indice = await tx.get(refIndice);
+        // Todas as leituras ocorrem antes
+        // de qualquer gravação.
 
-        const planoAtivo = indice.exists()
-          ? indice.data().planoAtivoId
-          : null;
+        const alunoSnap = await tx.get(
+          referenciaAluno
+        );
 
-        if (planoAtivo) {
-          const plano = await tx.get(
-            doc(db, "mensalidades", planoAtivo)
+        const indiceSnap = await tx.get(
+          referenciaIndice
+        );
+
+        if (!alunoSnap.exists()) {
+          throw new Error(
+            "Aluno não encontrado."
           );
-
-          if (
-            plano.exists() &&
-            plano.data().ativo === true
-          ) {
-            throw new Error(
-              "Este aluno já tem um plano mensal ativo. " +
-              "Cancele-o antes de criar outro."
-            );
-          }
         }
 
-        tx.set(refPlano, {
+        const cadastro = alunoSnap.data();
+
+        // VERIFICAÇÃO PRINCIPAL
+        if (
+          cadastro.tipo !== "aluno" ||
+          cadastro.personalId !== personalAtual.uid ||
+          cadastro.matriculaCancelada === true
+        ) {
+          throw new Error(
+            "A matrícula está cancelada ou " +
+            "o aluno não pertence a este personal."
+          );
+        }
+
+        let planoAnteriorSnap = null;
+
+        if (
+          indiceSnap.exists() &&
+          indiceSnap.data().planoAtivoId
+        ) {
+          const planoAnteriorId =
+            indiceSnap.data().planoAtivoId;
+
+          planoAnteriorSnap = await tx.get(
+            doc(
+              db,
+              "mensalidades",
+              planoAnteriorId
+            )
+          );
+        }
+
+        if (
+          planoAnteriorSnap?.exists() &&
+          planoAnteriorSnap.data().ativo === true
+        ) {
+          throw new Error(
+            "Este aluno já possui um plano mensal ativo.\n\n" +
+            "Cancele a recorrência anterior antes."
+          );
+        }
+
+        // PLANO RECORRENTE
+        tx.set(referenciaPlano, {
           registroTipo: "recorrencia",
+
           personalId: personalAtual.uid,
-          alunoId: aluno.id,
-          alunoNome: aluno.nome || "Aluno",
+
+          alunoId,
+          alunoNome: cadastro.nome || "Aluno",
+
           nomePlano,
+
           valorPlano:
             Math.round(valorPlano * 100) / 100,
+
           primeiraData,
-          diaVencimento: dia,
+          diaVencimento,
+
           ativo: true,
+
           encerramentoCompetencia: null,
+
           criadoEm: serverTimestamp(),
           atualizadoEm: serverTimestamp()
         });
 
-        tx.set(refIndice, {
+        // ÍNDICE POR ALUNO
+        tx.set(referenciaIndice, {
           registroTipo: "indiceRecorrencia",
+
           personalId: personalAtual.uid,
-          alunoId: aluno.id,
-          planoAtivoId: refPlano.id,
+          alunoId,
+
+          planoAtivoId: referenciaPlano.id,
+
           atualizadoEm: serverTimestamp()
         });
       });
@@ -288,14 +440,18 @@ $("formRecorrencia").addEventListener(
       $("nomePlanoRecorrencia").value =
         "Plano Mensal";
 
-      alert("Mensalidade recorrente ativada!");
+      alert(
+        "Plano mensal ativado!\n\n" +
+        "As mensalidades serão calculadas " +
+        "automaticamente a cada mês."
+      );
 
     } catch (erro) {
       console.error(erro);
 
       alert(
         erro.message ||
-        "Não foi possível ativar o plano."
+        "Não foi possível criar o plano."
       );
 
     } finally {
@@ -307,60 +463,73 @@ $("formRecorrencia").addEventListener(
 );
 
 // ==========================================
-// CANCELAR RECORRÊNCIA
+// CANCELAR SOMENTE A RECORRÊNCIA
 // ==========================================
 
 async function cancelarRecorrencia(plano) {
-  const confirmar = confirm(
-    `Cancelar a recorrência de ${plano.alunoNome}?\n\n` +
-    "A cobrança do mês atual e o histórico " +
-    "serão preservados. Não haverá novas " +
-    "cobranças nos próximos meses."
+  if (!personalAtual) return;
+
+  const confirmado = confirm(
+    `Cancelar o plano mensal de ${plano.alunoNome}?\n\n` +
+    "A matrícula continuará ativa.\n" +
+    "As cobranças dos próximos meses serão interrompidas.\n" +
+    "O histórico financeiro será preservado."
   );
 
-  if (!confirmar) return;
+  if (!confirmado) return;
 
-  const refPlano = doc(
+  const referenciaPlano = doc(
     db,
     "mensalidades",
     plano.id
   );
 
-  const refIndice = doc(
+  const referenciaIndice = doc(
     db,
     "mensalidades",
     indicePlanoId(plano.alunoId)
   );
 
   await runTransaction(db, async tx => {
-    const [snapPlano, snapIndice] = await Promise.all([
-      tx.get(refPlano),
-      tx.get(refIndice)
-    ]);
+    const planoSnap = await tx.get(
+      referenciaPlano
+    );
 
-    if (
-      !snapPlano.exists() ||
-      snapPlano.data().personalId !== personalAtual.uid
-    ) {
+    const indiceSnap = await tx.get(
+      referenciaIndice
+    );
+
+    if (!planoSnap.exists()) {
       throw new Error("Plano não encontrado.");
     }
 
-    if (!snapPlano.data().ativo) {
-      throw new Error("Plano já cancelado.");
+    const dados = planoSnap.data();
+
+    if (
+      dados.personalId !== personalAtual.uid ||
+      dados.registroTipo !== "recorrencia" ||
+      dados.ativo !== true
+    ) {
+      throw new Error(
+        "Plano inválido ou já cancelado."
+      );
     }
 
-    tx.update(refPlano, {
+    tx.update(referenciaPlano, {
       ativo: false,
-      encerramentoCompetencia: competenciaAtual(),
+
+      encerramentoCompetencia:
+        competenciaAtual(),
+
       canceladoEm: serverTimestamp(),
       atualizadoEm: serverTimestamp()
     });
 
     if (
-      snapIndice.exists() &&
-      snapIndice.data().planoAtivoId === plano.id
+      indiceSnap.exists() &&
+      indiceSnap.data().planoAtivoId === plano.id
     ) {
-      tx.update(refIndice, {
+      tx.update(referenciaIndice, {
         planoAtivoId: null,
         atualizadoEm: serverTimestamp()
       });
@@ -368,7 +537,8 @@ async function cancelarRecorrencia(plano) {
   });
 
   alert(
-    "Recorrência cancelada. Histórico preservado."
+    "Recorrência cancelada com sucesso!\n\n" +
+    "A matrícula do aluno permanece ativa."
   );
 }
 
@@ -382,7 +552,9 @@ function renderizarRecorrencias() {
   lista.replaceChildren();
 
   const planos = registros
-    .filter(r => r.registroTipo === "recorrencia")
+    .filter(
+      r => r.registroTipo === "recorrencia"
+    )
     .sort((a, b) =>
       (a.alunoNome || "").localeCompare(
         b.alunoNome || "",
@@ -394,13 +566,14 @@ function renderizarRecorrencias() {
     lista.appendChild(
       elemento(
         "p",
-        "Nenhum plano recorrente cadastrado."
+        "Nenhum plano mensal cadastrado."
       )
     );
+
     return;
   }
 
-  for (const p of planos) {
+  for (const plano of planos) {
     const card = elemento(
       "article",
       "",
@@ -408,38 +581,52 @@ function renderizarRecorrencias() {
     );
 
     card.appendChild(
-      elemento("strong", p.alunoNome || "Aluno")
-    );
-
-    card.appendChild(
-      elemento("h3", p.nomePlano || "Plano Mensal")
+      elemento(
+        "strong",
+        plano.alunoNome || "Aluno"
+      )
     );
 
     card.appendChild(
       elemento(
-        "p",
-        `${moeda(p.valorPlano)} por mês · ` +
-        `dia ${p.diaVencimento}`
+        "h3",
+        plano.nomePlano || "Plano Mensal"
       )
     );
 
     card.appendChild(
       elemento(
         "p",
-        `Primeiro vencimento: ` +
-        p.primeiraData.split("-").reverse().join("/")
+        `${moeda(plano.valorPlano)} por mês · ` +
+        `Vencimento no dia ${plano.diaVencimento}`
+      )
+    );
+
+    card.appendChild(
+      elemento(
+        "p",
+        `Primeiro vencimento: ${
+          plano.primeiraData
+            ? plano.primeiraData
+                .split("-")
+                .reverse()
+                .join("/")
+            : "Não informado"
+        }`
       )
     );
 
     card.appendChild(
       elemento(
         "span",
-        p.ativo ? "Ativo" : "Cancelado",
-        `mens-status ${p.ativo ? "pago" : "atrasado"}`
+        plano.ativo ? "Ativo" : "Cancelado",
+        `mens-status ${
+          plano.ativo ? "pago" : "atrasado"
+        }`
       )
     );
 
-    if (p.ativo) {
+    if (plano.ativo) {
       const acoes = elemento(
         "div",
         "",
@@ -449,7 +636,7 @@ function renderizarRecorrencias() {
       acoes.appendChild(
         criarBotao(
           "Cancelar recorrência",
-          () => cancelarRecorrencia(p),
+          () => cancelarRecorrencia(plano),
           "mens-excluir"
         )
       );
@@ -465,72 +652,125 @@ function renderizarRecorrencias() {
 // CONFIRMAR OU REVERTER PAGAMENTO
 // ==========================================
 
-async function alterarPagamento(m) {
-  const pagar = m.status !== "pago";
+async function alterarPagamento(mensalidade) {
+  if (!personalAtual) return;
 
-  if (!confirm(
+  const pagar = mensalidade.status !== "pago";
+
+  const confirmado = confirm(
     pagar
-      ? `Confirmar pagamento de ${moeda(m.valorPlano)}?`
-      : "Reverter este pagamento?"
-  )) {
-    return;
-  }
+      ? `Confirmar pagamento de ${moeda(mensalidade.valorPlano)}?`
+      : "Deseja reverter este pagamento?"
+  );
+
+  if (!confirmado) return;
 
   const referencia = doc(
     db,
     "mensalidades",
-    m.id
+    mensalidade.id
   );
 
   await runTransaction(db, async tx => {
-    const existente = await tx.get(referencia);
+    const existente = await tx.get(
+      referencia
+    );
 
     if (existente.exists()) {
+      const dados = existente.data();
+
       if (
-        existente.data().personalId !== personalAtual.uid ||
-        existente.data().registroTipo === "recorrencia"
+        dados.personalId !== personalAtual.uid ||
+        [
+          "recorrencia",
+          "indiceRecorrencia"
+        ].includes(dados.registroTipo)
       ) {
-        throw new Error("Cobrança inválida.");
+        throw new Error(
+          "Esta cobrança não pode ser modificada."
+        );
+      }
+
+      // Verifica o status mais recente.
+      if (
+        (dados.status === "pago") === pagar
+      ) {
+        throw new Error(
+          "O pagamento foi alterado em outra sessão. " +
+          "Atualize a página."
+        );
       }
 
       tx.update(referencia, {
         status: pagar ? "pago" : "pendente",
-        pagoEm: pagar ? serverTimestamp() : null,
+
+        pagoEm: pagar
+          ? serverTimestamp()
+          : null,
+
         atualizadoEm: serverTimestamp()
       });
 
     } else {
-      if (!m.virtual || !m.planoRecorrenteId) {
-        throw new Error("Cobrança não encontrada.");
+      // Cobrança virtual ainda não gravada.
+      if (
+        !mensalidade.virtual ||
+        !mensalidade.planoRecorrenteId ||
+        !pagar
+      ) {
+        throw new Error(
+          "Cobrança não encontrada."
+        );
       }
 
       const planoSnap = await tx.get(
         doc(
           db,
           "mensalidades",
-          m.planoRecorrenteId
+          mensalidade.planoRecorrenteId
         )
       );
 
+      if (!planoSnap.exists()) {
+        throw new Error(
+          "Plano recorrente não encontrado."
+        );
+      }
+
+      const plano = planoSnap.data();
+
       if (
-        !planoSnap.exists() ||
-        planoSnap.data().personalId !== personalAtual.uid
+        plano.personalId !== personalAtual.uid ||
+        plano.alunoId !== mensalidade.alunoId ||
+        plano.registroTipo !== "recorrencia"
       ) {
-        throw new Error("Matrícula não encontrada.");
+        throw new Error(
+          "Dados da cobrança incompatíveis."
+        );
       }
 
       tx.set(referencia, {
         registroTipo: "cobrancaRecorrente",
-        planoRecorrenteId: m.planoRecorrenteId,
-        competencia: m.competencia,
-        personalId: m.personalId,
-        alunoId: m.alunoId,
-        alunoNome: m.alunoNome,
-        nomePlano: m.nomePlano,
-        valorPlano: m.valorPlano,
-        vencimento: m.vencimento,
-        status: pagar ? "pago" : "pendente",
-        pagoEm: pagar ? serverTimestamp() : null,
+
+        planoRecorrenteId:
+          mensalidade.planoRecorrenteId,
+
+        competencia: mensalidade.competencia,
+
+        personalId: personalAtual.uid,
+
+        alunoId: mensalidade.alunoId,
+        alunoNome: mensalidade.alunoNome,
+
+        nomePlano: mensalidade.nomePlano,
+        valorPlano: mensalidade.valorPlano,
+
+        vencimento: mensalidade.vencimento,
+
+        status: "pago",
+
+        pagoEm: serverTimestamp(),
+
         criadoEm: serverTimestamp(),
         atualizadoEm: serverTimestamp()
       });
@@ -545,15 +785,15 @@ async function alterarPagamento(m) {
 }
 
 // ==========================================
-// COBRANÇAS AVULSAS E ANTIGAS
+// COBRANÇAS AVULSAS
 // ==========================================
 
 $("formMensalidade").addEventListener(
   "submit",
-  async e => {
-    e.preventDefault();
+  async evento => {
+    evento.preventDefault();
 
-    if (!personalAtual) return;
+    if (!personalAtual || emOperacao) return;
 
     const aluno = alunos.find(
       a => a.id === $("alunoSelect").value
@@ -574,27 +814,38 @@ $("formMensalidade").addEventListener(
     if (
       !aluno ||
       !nomePlano ||
-      !(valorPlano > 0) ||
-      !vencimento
+      !Number.isFinite(valorPlano) ||
+      valorPlano <= 0 ||
+      !dataValida(vencimento)
     ) {
-      return alert(
-        "Preencha todos os campos corretamente."
+      alert(
+        "Preencha corretamente todos os campos."
       );
+
+      return;
     }
+
+    emOperacao = true;
 
     $("btnSalvar").disabled = true;
 
     try {
       const dados = {
         registroTipo: "avulsa",
+
         personalId: personalAtual.uid,
+
         alunoId: aluno.id,
         alunoNome: aluno.nome || "Aluno",
+
         nomePlano,
+
         valorPlano:
           Math.round(valorPlano * 100) / 100,
+
         vencimento,
         status,
+
         atualizadoEm: serverTimestamp()
       };
 
@@ -606,7 +857,11 @@ $("formMensalidade").addEventListener(
         if (
           !atual ||
           atual.personalId !== personalAtual.uid ||
-          atual.registroTipo === "cobrancaRecorrente"
+          [
+            "recorrencia",
+            "indiceRecorrencia",
+            "cobrancaRecorrente"
+          ].includes(atual.registroTipo)
         ) {
           throw new Error(
             "Cobrança avulsa não encontrada."
@@ -634,16 +889,18 @@ $("formMensalidade").addEventListener(
           collection(db, "mensalidades"),
           {
             ...dados,
+
             criadoEm: serverTimestamp(),
-            pagoEm:
-              status === "pago"
-                ? serverTimestamp()
-                : null
+
+            pagoEm: status === "pago"
+              ? serverTimestamp()
+              : null
           }
         );
       }
 
-      alert("Cobrança salva!");
+      alert("Cobrança salva com sucesso!");
+
       limparFormulario();
 
     } catch (erro) {
@@ -651,17 +908,19 @@ $("formMensalidade").addEventListener(
 
       alert(
         erro.message ||
-        "Erro ao salvar cobrança."
+        "Não foi possível salvar a cobrança."
       );
 
     } finally {
+      emOperacao = false;
+
       $("btnSalvar").disabled = false;
     }
   }
 );
 
 // ==========================================
-// LIMPAR FORMULÁRIO
+// LIMPAR FORMULÁRIO AVULSO
 // ==========================================
 
 function limparFormulario() {
@@ -682,29 +941,39 @@ function limparFormulario() {
 // EDITAR COBRANÇA AVULSA
 // ==========================================
 
-function editarAvulsa(m) {
-  if (
-    ![...$("alunoSelect").options].some(
-      o => o.value === m.alunoId
-    )
-  ) {
-    $("alunoSelect").add(
+function editarAvulsa(mensalidade) {
+  const select = $("alunoSelect");
+
+  const existe = [...select.options].some(
+    opcao => opcao.value === mensalidade.alunoId
+  );
+
+  if (!existe) {
+    select.add(
       new Option(
-        m.alunoNome || "Aluno antigo",
-        m.alunoId
+        mensalidade.alunoNome || "Aluno antigo",
+        mensalidade.alunoId
       )
     );
   }
 
-  editandoId = m.id;
+  editandoId = mensalidade.id;
 
-  $("alunoSelect").value = m.alunoId;
-  $("nomePlano").value = m.nomePlano || "";
-  $("valorPlano").value = m.valorPlano;
-  $("vencimento").value = m.vencimento || "";
+  select.value = mensalidade.alunoId;
+
+  $("nomePlano").value =
+    mensalidade.nomePlano || "";
+
+  $("valorPlano").value =
+    mensalidade.valorPlano;
+
+  $("vencimento").value =
+    mensalidade.vencimento || "";
 
   $("statusPagamento").value =
-    m.status === "pago" ? "pago" : "pendente";
+    mensalidade.status === "pago"
+      ? "pago"
+      : "pendente";
 
   $("tituloFormulario").textContent =
     "Editar cobrança avulsa";
@@ -724,50 +993,70 @@ function editarAvulsa(m) {
 // EXCLUIR COBRANÇA AVULSA
 // ==========================================
 
-async function excluirAvulsa(m) {
-  if (!confirm(
-    `Excluir a cobrança "${m.nomePlano}" ` +
-    `de ${m.alunoNome}?`
-  )) {
-    return;
-  }
+async function excluirAvulsa(mensalidade) {
+  if (!personalAtual) return;
 
-  const snap = await getDoc(
-    doc(db, "mensalidades", m.id)
+  const confirmado = confirm(
+    `Excluir a cobrança de ${mensalidade.alunoNome}?\n\n` +
+    "Esta ação não pode ser desfeita."
   );
 
-  if (
-    !snap.exists() ||
-    snap.data().personalId !== personalAtual.uid ||
-    [
-      "recorrencia",
-      "cobrancaRecorrente",
-      "indiceRecorrencia"
-    ].includes(snap.data().registroTipo)
-  ) {
-    throw new Error(
-      "Cobrança não pode ser excluída."
-    );
-  }
+  if (!confirmado) return;
 
-  await deleteDoc(
-    doc(db, "mensalidades", m.id)
+  const referencia = doc(
+    db,
+    "mensalidades",
+    mensalidade.id
   );
 
-  if (editandoId === m.id) {
+  // Transação para verificar novamente
+  // se a cobrança pode ser excluída.
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(referencia);
+
+    if (!snap.exists()) {
+      throw new Error(
+        "Cobrança não encontrada."
+      );
+    }
+
+    const dados = snap.data();
+
+    if (
+      dados.personalId !== personalAtual.uid ||
+      [
+        "recorrencia",
+        "indiceRecorrencia",
+        "cobrancaRecorrente"
+      ].includes(dados.registroTipo)
+    ) {
+      throw new Error(
+        "Esta cobrança não pode ser excluída."
+      );
+    }
+
+    tx.delete(referencia);
+  });
+
+  if (editandoId === mensalidade.id) {
     limparFormulario();
   }
+
+  alert("Cobrança excluída!");
 }
 
 // ==========================================
-// EXIBIÇÃO E FILTROS
+// LISTAGEM E FILTROS
 // ==========================================
 
 function renderizar() {
+  if (!personalAtual) return;
+
   renderizarRecorrencias();
 
   const mes =
-    $("mesCobrancas").value || competenciaAtual();
+    $("mesCobrancas").value ||
+    competenciaAtual();
 
   const incluirAtrasadas =
     $("incluirAtrasadas").checked;
@@ -780,6 +1069,8 @@ function renderizar() {
     mes
   );
 
+  // Exibe o mês selecionado e,
+  // opcionalmente, pendências anteriores.
   const visiveis = todas.filter(m => {
     const competencia =
       m.competencia ||
@@ -797,10 +1088,15 @@ function renderizar() {
 
   const registrosFiltrados = visiveis
     .filter(
-      m => filtro === "todos" ||
-      statusAtual(m) === filtro
+      m =>
+        filtro === "todos" ||
+        statusAtual(m) === filtro
     )
     .sort(ordenar);
+
+  // ========================================
+  // RESUMO FINANCEIRO
+  // ========================================
 
   let recebido = 0;
   let pendente = 0;
@@ -816,8 +1112,10 @@ function renderizar() {
 
     if (status === "pago") {
       recebido += valor;
+
     } else if (status === "atrasado") {
       atrasado += valor;
+
     } else {
       pendente += valor;
     }
@@ -835,6 +1133,10 @@ function renderizar() {
   $("totalGeral").textContent =
     moeda(total);
 
+  // ========================================
+  // LISTA DE COBRANÇAS
+  // ========================================
+
   const lista = $("listaMensalidades");
 
   lista.replaceChildren();
@@ -843,23 +1145,27 @@ function renderizar() {
     lista.appendChild(
       elemento(
         "p",
-        "Nenhuma cobrança para este filtro."
+        "Nenhuma cobrança encontrada."
       )
     );
 
     return;
   }
 
-  for (const m of registrosFiltrados) {
-    const card = criarCartao(m, true);
+  for (const mensalidade of registrosFiltrados) {
+    const card = criarCartao(
+      mensalidade,
+      true
+    );
 
     if (
-      m.registroTipo === "cobrancaRecorrente"
+      mensalidade.registroTipo ===
+      "cobrancaRecorrente"
     ) {
       card.appendChild(
         elemento(
           "p",
-          `Referência: ${m.competencia} · Plano mensal`
+          `Referência: ${mensalidade.competencia}`
         )
       );
     }
@@ -870,25 +1176,33 @@ function renderizar() {
       "mens-acoes"
     );
 
+    // PAGAMENTO
     acoes.appendChild(
       criarBotao(
-        m.status === "pago"
+        mensalidade.status === "pago"
           ? "Reverter pagamento"
           : "Marcar como pago",
-        () => alterarPagamento(m),
-        m.status === "pago"
+
+        () => alterarPagamento(mensalidade),
+
+        mensalidade.status === "pago"
           ? "mens-secundario"
           : ""
       )
     );
 
+    // COBRANÇAS AVULSAS
     if (
-      m.registroTipo !== "cobrancaRecorrente"
+      ![
+        "recorrencia",
+        "indiceRecorrencia",
+        "cobrancaRecorrente"
+      ].includes(mensalidade.registroTipo)
     ) {
       acoes.appendChild(
         criarBotao(
           "Editar",
-          () => editarAvulsa(m),
+          () => editarAvulsa(mensalidade),
           "mens-secundario"
         )
       );
@@ -896,7 +1210,7 @@ function renderizar() {
       acoes.appendChild(
         criarBotao(
           "Excluir",
-          () => excluirAvulsa(m),
+          () => excluirAvulsa(mensalidade),
           "mens-excluir"
         )
       );
@@ -908,32 +1222,46 @@ function renderizar() {
 }
 
 // ==========================================
-// ATUALIZAÇÃO AO VOLTAR À PÁGINA
+// ATUALIZAR AO VOLTAR À PÁGINA
 // ==========================================
 
 document.addEventListener(
   "visibilitychange",
   () => {
-    if (!document.hidden) {
-      $("mesCobrancas").max =
+    if (document.hidden) return;
+
+    $("mesCobrancas").max =
+      competenciaAtual();
+
+    if (
+      $("mesCobrancas").value >
+      competenciaAtual()
+    ) {
+      $("mesCobrancas").value =
         competenciaAtual();
-
-      if (
-        $("mesCobrancas").value >
-        competenciaAtual()
-      ) {
-        $("mesCobrancas").value =
-          competenciaAtual();
-      }
-
-      renderizar();
     }
+
+    renderizar();
   }
 );
 
+// ==========================================
+// ENCERRAMENTO
+// ==========================================
+
+function encerrarEscutas() {
+  if (cancelarEscuta) {
+    cancelarEscuta();
+    cancelarEscuta = null;
+  }
+
+  if (cancelarEscutaAlunos) {
+    cancelarEscutaAlunos();
+    cancelarEscutaAlunos = null;
+  }
+}
+
 window.addEventListener(
   "pagehide",
-  () => {
-    if (cancelarEscuta) cancelarEscuta();
-  }
+  encerrarEscutas
 );
