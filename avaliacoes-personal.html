@@ -5,10 +5,7 @@
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Avaliações Físicas</title>
 
@@ -26,11 +23,7 @@
         <h1>Avaliações</h1>
       </div>
 
-      <button
-        type="button"
-        onclick="voltar()"
-        class="btn-sair"
-      >
+      <button type="button" onclick="voltar()" class="btn-sair">
         Voltar
       </button>
     </header>
@@ -53,34 +46,19 @@
         Data da avaliação
       </label>
 
-      <input
-        type="date"
-        id="dataAvaliacao"
-      >
+      <input type="date" id="dataAvaliacao">
 
       <label for="peso">
         Peso
       </label>
 
-      <input
-        type="number"
-        id="peso"
-        placeholder="Peso em kg"
-        min="1"
-        step="0.1"
-      >
+      <input type="number" id="peso" placeholder="Peso em kg" min="1" step="0.1">
 
       <label for="altura">
         Altura
       </label>
 
-      <input
-        type="number"
-        id="altura"
-        placeholder="Altura em cm"
-        min="1"
-        step="0.1"
-      >
+      <input type="number" id="altura" placeholder="Altura em cm" min="1" step="0.1">
 
       <hr>
 
@@ -90,10 +68,7 @@
         Protocolo de avaliação
       </label>
 
-      <select
-        id="protocolo"
-        onchange="atualizarCamposDobras()"
-      >
+      <select id="protocolo" onchange="atualizarCamposDobras()">
         <option value="jacksonPollock3">
           Jackson e Pollock — 3 dobras
         </option>
@@ -119,10 +94,7 @@
         Sexo utilizado no protocolo
       </label>
 
-      <select
-        id="sexo"
-        onchange="atualizarCamposDobras()"
-      >
+      <select id="sexo" onchange="atualizarCamposDobras()">
         <option value="M">
           Masculino
         </option>
@@ -138,13 +110,7 @@
           Idade
         </label>
 
-        <input
-          type="number"
-          id="idade"
-          placeholder="Idade do aluno"
-          min="7"
-          max="120"
-        >
+        <input type="number" id="idade" placeholder="Idade do aluno" min="7" max="120">
 
       </div>
 
@@ -152,10 +118,7 @@
 
       <div id="dobras"></div>
 
-      <button
-        type="button"
-        onclick="calcularComposicao()"
-      >
+      <button type="button" onclick="calcularComposicao()">
         Calcular composição corporal
       </button>
 
@@ -217,7 +180,11 @@
         Preencha apenas as medidas realizadas.
       </p>
 
+<<<<<<< HEAD
+      <input type="number" id="cintura" placeholder="Cintura em cm" min="0" step="0.1">
+=======
       <div class="medidas-grid">
+>>>>>>> 179d2718e07e6895711fd3f4391a90dcde2f90e0
 
         <div>
           <label for="bracoDireito">Braço direito</label>
@@ -225,11 +192,15 @@
                  min="0" step="0.1" placeholder="cm">
         </div>
 
+<<<<<<< HEAD
+      <input type="number" id="braco" placeholder="Braço em cm" min="0" step="0.1">
+=======
         <div>
           <label for="bracoEsquerdo">Braço esquerdo</label>
           <input type="number" id="bracoEsquerdo"
                  min="0" step="0.1" placeholder="cm">
         </div>
+>>>>>>> 179d2718e07e6895711fd3f4391a90dcde2f90e0
 
         <div>
           <label for="coxaDireita">Coxa direita</label>
@@ -237,11 +208,15 @@
                  min="0" step="0.1" placeholder="cm">
         </div>
 
+<<<<<<< HEAD
+      <input type="number" id="coxa" placeholder="Coxa em cm" min="0" step="0.1">
+=======
         <div>
           <label for="coxaEsquerda">Coxa esquerda</label>
           <input type="number" id="coxaEsquerda"
                  min="0" step="0.1" placeholder="cm">
         </div>
+>>>>>>> 179d2718e07e6895711fd3f4391a90dcde2f90e0
 
         <div>
           <label for="panturrilhaDireita">Panturrilha direita</label>
@@ -297,31 +272,25 @@
         Observações
       </label>
 
-      <textarea
-        id="observacoes"
-        placeholder="Observações da avaliação"
-      ></textarea>
+      <textarea id="observacoes" placeholder="Observações da avaliação"></textarea>
 
-      <button
-        type="button"
-        onclick="salvarAvaliacao()"
-      >
+      <button type="button" onclick="salvarAvaliacao()">
         Salvar avaliação
+      </button>
+
+      <button type="button" onclick="gerarPdfAvaliacao()">
+        Baixar avaliação em PDF
       </button>
 
     </section>
 
   </main>
 
-  <script
-    type="module"
-    src="firebase.js"
-  ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <script
-    type="module"
-    src="avaliacoes-personal.js"
-  ></script>
+  <script type="module" src="firebase.js"></script>
+
+  <script type="module" src="avaliacoes-personal.js"></script>
 
 </body>
 

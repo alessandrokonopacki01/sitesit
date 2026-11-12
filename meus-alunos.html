@@ -13,9 +13,13 @@
   <link rel="stylesheet" href="aluno.css">
 
   <style>
+    /* ==========================================
+       FITCOACH — CONTROLE DE MATRÍCULAS
+       ========================================== */
+
     .alunos-resumo {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
       margin-top: 16px;
     }
@@ -24,7 +28,7 @@
       background: #101014;
       border: 1px solid #30303a;
       border-radius: 12px;
-      padding: 14px;
+      padding: 15px;
       min-width: 0;
     }
 
@@ -36,9 +40,30 @@
     }
 
     .alunos-indicador strong {
-      font-size: 22px;
+      display: block;
+      font-size: 25px;
       color: #4ade80;
     }
+
+    .alunos-indicador.canceladas strong {
+      color: #e9b8e9;
+    }
+
+    .alunos-indicador.bloqueadas strong {
+      color: #f87171;
+    }
+
+    .alunos-ajuda {
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    /* ==========================================
+       LISTA DE ALUNOS
+       ========================================== */
 
     #listaAlunos {
       margin-top: 18px;
@@ -54,7 +79,8 @@
 
     .aluno-card h3 {
       font-size: 16px;
-      margin-bottom: 7px;
+      margin: 0 0 8px;
+      color: #fff;
     }
 
     .aluno-card p {
@@ -65,12 +91,16 @@
       overflow-wrap: anywhere;
     }
 
+    /* ==========================================
+       SITUAÇÃO DA MATRÍCULA
+       ========================================== */
+
     .matricula-status {
       display: inline-block;
       padding: 6px 12px;
       border-radius: 20px;
       font-size: 12px;
-      font-weight: bold;
+      font-weight: 700;
       margin: 10px 0;
     }
 
@@ -84,6 +114,15 @@
       color: #f87171;
     }
 
+    .matricula-status.cancelada {
+      background: #382938;
+      color: #e9b8e9;
+    }
+
+    /* ==========================================
+       BOTÕES
+       ========================================== */
+
     .aluno-acoes {
       display: flex;
       flex-wrap: wrap;
@@ -92,8 +131,19 @@
     }
 
     .aluno-acoes button {
-      flex: 1;
-      min-height: 42px;
+      flex: 1 1 180px;
+      min-width: 0;
+      min-height: 44px;
+      padding: 12px;
+      margin: 0;
+
+      border: none;
+      border-radius: 10px;
+
+      font-size: 13px;
+      font-weight: 700;
+
+      cursor: pointer;
     }
 
     .btn-bloquear {
@@ -106,31 +156,72 @@
       color: #fff;
     }
 
+    .btn-cancelar-matricula {
+      background: #703039;
+      color: #fff;
+    }
+
+    .btn-bloquear:hover,
+    .btn-cancelar-matricula:hover {
+      background: #963a42;
+    }
+
+    .btn-desbloquear:hover {
+      background: #22c55e;
+      color: #08130c;
+    }
+
     .aluno-acoes button:disabled {
       opacity: 0.5;
       cursor: wait;
     }
 
+    /* ==========================================
+       RESPONSIVIDADE
+       ========================================== */
+
     [hidden] {
       display: none !important;
     }
 
+    @media (min-width: 768px) {
+      .alunos-resumo {
+        grid-template-columns:
+          repeat(4, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 480px) {
       .alunos-indicador {
-        padding: 10px;
+        padding: 12px;
       }
 
       .alunos-indicador strong {
-        font-size: 18px;
+        font-size: 21px;
+      }
+
+      .aluno-acoes {
+        flex-direction: column;
+      }
+
+      .aluno-acoes button {
+        flex: none;
+        width: 100%;
       }
     }
   </style>
 </head>
 
 <body>
-  <main class="app" id="painelAlunos" hidden>
+
+  <main
+    class="app"
+    id="painelAlunos"
+    hidden
+  >
 
     <header class="topo">
+
       <div>
         <p>Área do Personal</p>
         <h1>Meus Alunos</h1>
@@ -143,16 +234,26 @@
       >
         Voltar
       </button>
+
     </header>
+
+    <!-- ======================================
+         RESUMO DAS MATRÍCULAS
+         ====================================== -->
 
     <section class="card">
 
       <h2>Controle de matrículas</h2>
 
+      <p class="alunos-ajuda">
+        Gerencie o acesso dos alunos e acompanhe
+        a situação de suas matrículas.
+      </p>
+
       <div class="alunos-resumo">
 
         <div class="alunos-indicador">
-          <span>Total</span>
+          <span>Total de alunos</span>
           <strong id="totalAlunos">0</strong>
         </div>
 
@@ -161,34 +262,102 @@
           <strong id="totalAtivos">0</strong>
         </div>
 
-        <div class="alunos-indicador">
+        <div class="alunos-indicador bloqueadas">
           <span>Bloqueadas</span>
           <strong id="totalBloqueados">0</strong>
+        </div>
+
+        <div class="alunos-indicador canceladas">
+          <span>Canceladas</span>
+          <strong id="totalCancelados">0</strong>
         </div>
 
       </div>
 
     </section>
 
-    <section class="card" style="margin-top: 20px;">
+    <!-- ======================================
+         INFORMAÇÕES
+         ====================================== -->
+
+    <section
+      class="card"
+      style="margin-top: 20px;"
+    >
+
+      <h2>Como funciona?</h2>
+
+      <p class="alunos-ajuda">
+        <strong style="color: #4ade80;">
+          Matrícula ativa:
+        </strong>
+        o aluno pode utilizar normalmente
+        as funcionalidades disponíveis.
+      </p>
+
+      <p class="alunos-ajuda">
+        <strong style="color: #f87171;">
+          Bloqueio temporário:
+        </strong>
+        o acesso é suspenso, mas as
+        mensalidades continuam sendo cobradas.
+      </p>
+
+      <p class="alunos-ajuda">
+        <strong style="color: #e9b8e9;">
+          Matrícula cancelada:
+        </strong>
+        novas atividades são interrompidas,
+        a recorrência financeira é encerrada
+        e o histórico é preservado.
+      </p>
+
+    </section>
+
+    <!-- ======================================
+         ALUNOS VINCULADOS
+         ====================================== -->
+
+    <section
+      class="card"
+      style="margin-top: 20px;"
+    >
 
       <h2>Alunos vinculados</h2>
 
+      <p class="alunos-ajuda">
+        Selecione a ação desejada para
+        gerenciar cada matrícula.
+      </p>
+
       <div id="listaAlunos">
+
         <p>Carregando alunos...</p>
+
       </div>
 
     </section>
 
   </main>
 
-  <div id="avisoAcesso" style="
-    color: #fff;
-    text-align: center;
-    padding: 40px 20px;
-  ">
+  <!-- ========================================
+       AVISO DE ACESSO
+       ======================================== -->
+
+  <div
+    id="avisoAcesso"
+    style="
+      color: #fff;
+      text-align: center;
+      padding: 40px 20px;
+    "
+  >
     Verificando acesso...
   </div>
+
+  <!-- ========================================
+       JAVASCRIPT
+       ======================================== -->
 
   <script
     type="module"
