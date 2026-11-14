@@ -17,13 +17,26 @@ import {
 
 let usuarioAtual = null;
 
+
 window.abrirModal = function () {
-  document.getElementById("modalPersonal").style.display = "flex";
+  const modal = document.getElementById("modalPersonal");
+
+  if (!modal) return;
+
+  // Permite abrir o formulário novamente.
+  modal.hidden = false;
+  modal.style.display = "flex";
 };
 
 window.fecharModal = function () {
-  document.getElementById("modalPersonal").style.display = "none";
+  const modal = document.getElementById("modalPersonal");
+
+  if (!modal) return;
+
+  modal.hidden = true;
+  modal.style.display = "none";
 };
+
 
 window.sair = async function () {
   await signOut(auth);
