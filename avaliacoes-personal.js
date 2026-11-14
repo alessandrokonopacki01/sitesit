@@ -512,3 +512,129 @@ function limparFormulario() {
 ["peso", "altura", "idade"].forEach(id => {
   $(id).addEventListener("input", invalidarCalculo);
 });
+
+window.gerarPdfAvaliacao = function () {
+  if (!window.jspdf?.jsPDF) {
+    alert("A biblioteca de PDF não foi carregada.");
+    return;
+  }
+
+  const alunoSelect = $("alunoSelect");
+
+  if (!alunoSelect.value) {
+    alert("Selecione um aluno.");
+    return;
+  }
+
+  // Recalcula com os valores atuais,
+  // evitando emitir um relatório desatualizado.
+  const resultado = calcularComposicao();
+
+  if (!resultado) return;
+
+  let medidas;
+
+  try {
+    medidas = coletarMedidas();
+  } catch (erro) {
+    alert(erro.message);
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  const nomeAluno =
+    alunoSelect.selectedOptions[0].textContent.trim();
+
+  const data = $("dataAvaliacao").value;
+
+  if (!data) {
+    alert("Informe a data da avaliação.");
+    return;
+  }
+
+  const linhas = [
+    ["Aluno", nomeAluno],
+    ["Data", data.split("-").reverse().join("/")],
+    ["Protocolo", resultado.protocolo],
+    ["Peso", `${resultado.peso} kg`],
+    ["Altura", `${resultado.altura} cm`],
+    ["IMC", resultado.imc.toFixed(2)],
+    ["Classificação", resultado.classificacaoIMC],
+    ["Soma das dobras", `${resultado.somaDobras.toFixed(2)} mm`],
+    ["Gordura corporal", `${resultado.percentualGordura.toFixed(2)}%`],
+    ["Massa gorda", `${resultado.massaGorda.toFixed(2)} kg`],
+    ["Massa magra", `${resultado.massaMagra.toFixed(2)} kg`]
+  ];
+
+  for (const [nome, valor] of Object.entries(medidas)) {
+    if (valor !== null) {
+      linhas.push([nome, `${valor} cm`]);
+    }
+  }
+
+  const observacoes = $("observacoes").value.trim();
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(18);
+  pdf.text("FITCOACH", 15, 20);
+
+  pdf.setFontSize(13);
+  pdf.text("Avaliação física", 15, 30);
+
+  let y = 43;
+
+  pdf.setFontSize(10);
+
+  for (const [rotulo, valor] of linhas) {
+    if (y > 275) {
+      pdf.addPage();
+      y = 20;
+    }
+
+    const texto = `${rotulo}: ${valor}`;
+
+    pdf.setFont("helvetica", "normal");
+
+    const partes = pdf.splitTextToSize(
+      texto,
+      175
+    );
+
+    pdf.text(partes, 15, y);
+    y += partes.length * 6 + 3;
+  }
+
+  if (observacoes) {
+    if (y > 245) {
+      pdf.addPage();
+      y = 20;
+    }
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Observações:", 15, y);
+    y += 7;
+
+    pdf.setFont("helvetica", "normal");
+
+    const partes = pdf.splitTextToSize(
+      observacoes,
+      175
+    );
+
+    for (const parte of partes) {
+      if (y > 275) {
+        pdf.addPage();
+        y = 20;
+      }
+
+      pdf.text(parte, 15, y);
+      y += 6;
+    }
+  }
+
+  pdf.save(
+    `avaliacao-${alunoSelect.value}-${data}.pdf`
+  );
+};
